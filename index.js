@@ -112,10 +112,9 @@ Hie.prototype.boil = function(name, stems_, regexp_){
       'boil(method[, boiler, regexp]):\n > no method `'+name+'` at `this`');
   }
 
-  // set
   var boiler = null, self = null;
-  if(util.type(stems_).function){
-    boiler = stems_; self = this;
+  if(util.type(stems_).function){  // set
+    self = this; boiler = stems_;
     this.boil.method[name] = function(stems, regex){
       regex = util.type(regex).regexp || /[ ]+/;
       stems = boiler.call(self, util.type(stems), regex);
@@ -124,10 +123,8 @@ Hie.prototype.boil = function(name, stems_, regexp_){
         'boil(method, boiler[, regexp]):\n > boiler should return an array');
     };
     return this;
-  }
 
-  // default
-  if(!this.boil.method[name]){
+  } else if(!this.boil.method[name]){ // ensure
     this.boil.method[name] = function(stems, regex){
       stems = util.type(stems);
       regex = util.type(regex).regexp || /[ ]+/;
