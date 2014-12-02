@@ -103,47 +103,42 @@ Hie.prototype.get = function(stems){
 };
 
 //
-// ## wrappedBoiler
-//
-
-function wrappedBoiler(self, boiler, stems, regex){
-  regex = util.type(regex).regexp || /[ ]+/;
-  stems = boiler.call(self, util.type(stems), regex);
-  if(util.type(stems).array){ return stems; }
-  throw new util.Error(
-    'boil(method[, boiler, regexp]): boiler should return an array');
-}
-
-//
 // ## Hie.boil
 //
 
 Hie.prototype.boil = function(name, stems_, regexp_){
-  var method = typeof this[name] === 'function';
-
-  if(!method){
-    throw new Error('boil(method[, boiler, regexp]):\n' +
-      ' > method `'+name+'` not at `this`');
+  if(typeof this[name] !== 'function'){
+    throw new Error(
+      'boil(method[, boiler, regexp]):\n > no method `'+name+'` at `this`');
   }
 
-  var boiler;
-  if((boiler = util.type(stems_).function || null)){
-    this.boil.method[name] = boiler;
-  } else {
-    boiler = this.boil.method[name] = function (stems, regexp){
+  // set
+  var boiler = null, self = null;
+  if(util.type(stems_).function){
+    boiler = stems_; self = this;
+    this.boil.method[name] = function(stems, regex){
+      regex = util.type(regex).regexp || /[ ]+/;
+      stems = boiler.call(self, util.type(stems), regex);
+      if(util.type(stems).array){ return stems; }
+      throw new util.Error(
+        'boil(method, boiler[, regexp]):\n > boiler should return an array');
+    };
+    return this;
+  }
+
+  // default
+  if(!this.boil.method[name]){
+    this.boil.method[name] = function(stems, regex){
+      stems = util.type(stems);
+      regex = util.type(regex).regexp || /[ ]+/;
       if(!stems.string && !stems.array){ return [ ]; }
-      return (stems.string || stems.array.join(' ')).trim().split(regexp);
+      return (stems.string || stems.array.join(' ')).trim().split(regex);
     };
   }
 
-  if(stems_){
-    return wrappedBoiler(this, boiler, stems_, regexp_);
-  }
-
-  var self = this;
-  return function (stems, regexp){
-    return wrappedBoiler(self, boiler, stems, regexp);
-  };
+  boiler = this.boil.method[name];
+  if(stems_){ return boiler(stems_, regexp_); }
+  return boiler;
 };
 
 //
