@@ -119,19 +119,21 @@ function wrappedBoiler(self, boiler, stems, regex){
 //
 
 Hie.prototype.boil = function(name, stems_, regexp_){
-  var boiler = util.type(stems_).function || null;
   var method = typeof this[name] === 'function';
 
-  if(method && boiler){
+  if(!method){
+    throw new Error('boil(method[, boiler, regexp]):\n' +
+      ' > method `'+name+'` not at `this`');
+  }
+
+  var boiler;
+  if((boiler = util.type(stems_).function || null)){
     this.boil.method[name] = boiler;
-  } else if(method){
+  } else {
     boiler = this.boil.method[name] = function (stems, regexp){
       if(!stems.string && !stems.array){ return [ ]; }
       return (stems.string || stems.array.join(' ')).trim().split(regexp);
     };
-  } else {
-    throw new Error(
-      'boil(method[, boiler, regexp]): method `'+name+'` is not at `this`');
   }
 
   if(stems_){
