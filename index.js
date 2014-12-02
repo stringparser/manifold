@@ -80,16 +80,17 @@ Hie.prototype.set = function(stems, opts){
 // ## Hie.get
 //
 
-Hie.prototype.get = function(stems, opts){
-  stems = this.boil('get', stems); opts = opts || { };
-  var index = 0, found = this.cache, stem;
+Hie.prototype.get = function(stems){
+  var boil = this.boil('get');
+  var stem, index = 0, found = this.cache;
 
+  stems = boil(stems);
   while(stems[index]){
     stem = stems[index];
     if(found.aliases && found.aliases[stem]){
-      stems = this.boil('get',
-        stems.join(' ').replace(stem, found.aliases[stem]));
-      stem = stems[index];
+      stems = stems.join(' ').replace(stem, found.aliases[stem]);
+      stems = boil(stems);
+       stem = stems[index];
     }
     if(found.children && found.children[stem]){
       index++; found = found.children[stem];
@@ -97,30 +98,50 @@ Hie.prototype.get = function(stems, opts){
   }
 
   var shallow = util.merge({ }, found);
+  stem = null; // wipe
   return shallow;
 };
+
+//
+// ## wrappedBoiler
+//
+
+function wrappedBoiler(self, boiler, stems, regex){
+  regex = util.type(regex).regexp || /[ ]+/;
+  stems = boiler.call(self, util.type(stems), regex);
+  if(util.type(stems).array){ return stems; }
+  throw new util.Error(
+    'boil(method[, boiler, regexp]): boiler should return an array');
+}
 
 //
 // ## Hie.boil
 //
 
-Hie.prototype.boil = function(name, boiler, regexp){
-  var stems = util.type(boiler || null);
-  regexp = util.type(regexp).regexp || /[ ]+/;
-  boiler = util.type(boiler).function || null;
+Hie.prototype.boil = function(name, stems_, regexp_){
+  var boiler = util.type(stems_).function || null;
+  var method = typeof this[name] === 'function';
 
-  if(boiler && this[name]){
+  if(method && boiler){
     this.boil.method[name] = boiler;
-    return this;
-  } else if(this.boil.method[name]){
-    stems = this.boil.method[name].call(this, stems, regexp);
-    if(util.type(stems).array){ return stems; }
-    throw new util.Error(
-      'boil(method[, boiler, regexp]): boiler should return an array');
+  } else if(method){
+    boiler = this.boil.method[name] = function (stems, regexp){
+      if(!stems.string && !stems.array){ return [ ]; }
+      return (stems.string || stems.array.join(' ')).trim().split(regexp);
+    };
+  } else {
+    throw new Error(
+      'boil(method[, boiler, regexp]): method `'+name+'` is not at `this`');
   }
 
-  if(!stems.string && !stems.array){ return [ ]; }
-  return (stems.string || stems.array.join(' ')).trim().split(regexp);
+  if(stems_){
+    return wrappedBoiler(this, boiler, stems_, regexp_);
+  }
+
+  var self = this;
+  return function (stems, regexp){
+    return wrappedBoiler(self, boiler, stems, regexp);
+  };
 };
 
 //
@@ -128,6 +149,7 @@ Hie.prototype.boil = function(name, boiler, regexp){
 //
 
 Hie.prototype.parse = function(prop, parser){
+
   if(!parser){
     var copy = this.parser.method[prop];
     return copy;
@@ -135,14 +157,15 @@ Hie.prototype.parse = function(prop, parser){
 
   if(typeof prop !== 'string'){
     throw new util.Error(
-      'parse(prop[, parser]):\n `prop` should be a string');
+      'parse(prop[, parser]):\n > `prop` should be a string');
   }
   if(typeof parser !== 'function'){
     throw new util.Error(
-      'parse(prop[, parser]):\n If given, `parser` should be a function');
+      'parse(prop[, parser]):\n > If given, `parser` should be a function');
   }
 
   this.parser.method[prop] = parser;
+
   return this;
 };
 
