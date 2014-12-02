@@ -1,0 +1,219 @@
+'use strict';
+
+var util = require('./lib/util');
+
+//
+// ## exports
+//
+
+exports = module.exports = Hie;
+
+//
+// ## Hie.set
+//
+
+Hie.prototype.set = function(stems, opts){
+  var stemsIs = util.type(stems);
+  if( !stemsIs.match(/function|string|array|object/g) ){
+   throw new util.Error('boil(stems [,options]) \n'+
+     'should have at least one argument being: \n'+
+     ' - a `string`\n'+
+     ' - an `array` of `strings`\n'+
+     ' - a `function`\n'+
+     ' - an `object`'
+   );
+  }
+
+  var optsIs = util.type(opts);
+  opts = optsIs.plainObject || stemsIs.plainObject || {
+    handle: optsIs.function || stemsIs.function
+  };
+
+  if(stemsIs.array){
+    opts.aliases = stems.slice(1);
+    stems = stems[0];
+  }
+  stems = this.boil('set', stems);
+  stemsIs = optsIs = null; //wipe
+
+  var node = this.cache, parent = this.cache;
+  function createChildren(stem, index){
+    node.children = node.children || { };
+    if(stem && !node.children[stem]){
+      node.children[stem] = {
+        name: stem,
+        depth: node.depth + 1,
+        parent: ((node.parent || '') + ' ' + node.name).trim()
+      };
+    }
+    node.completion = node.completion || [ ];
+    if(node.completion.indexOf(stem) < 0){
+      node.completion.push(stem);
+    }
+    node = node.chilren[stem];
+    if(stems[index+1]){ parent = node; }
+  }
+
+  if(stems.length){ stems.forEach(createChildren); }
+
+  var parse = this.parse.method;
+  Object.keys(opts).forEach(function parseProps(prop){
+    var value = opts[prop];
+    if(value === void 0){ return ; }
+    else if(value === null){ return delete node[prop]; }
+
+    node[prop] = node[prop] || { };
+
+    if(parse[prop]){
+      parse[prop].call(this, parent, stems, value);
+    } else if(util.type(value).plainObject){
+      util.merge(node[prop], util.clone(value));
+    } else {
+      node[prop] = util.clone(value);
+    }
+  }, this);
+
+  return this;
+};
+
+//
+// ## Hie.get
+//
+
+Hie.prototype.get = function(stems, opts){
+  stems = this.boil('get', stems); opts = opts || { };
+  var index = 0, found = this.cache, stem;
+
+  while(stems[index]){
+    stem = stems[index];
+    if(found.aliases && found.aliases[stem]){
+      stems = this.boil('get',
+        stems.join(' ').replace(stem, found.aliases[stem]));
+      stem = stems[index];
+    }
+    if(found.children && found.children[stem]){
+      index++; found = found.children[stem];
+    } else { index = -1; }
+  }
+
+  var shallow = util.merge({ }, found);
+  return shallow;
+};
+
+//
+// ## Hie.boil
+//
+
+Hie.prototype.boil = function(name, boiler, regexp){
+  var stems = util.type(boiler || null);
+  regexp = util.type(regexp).regexp || /[ ]+/;
+  boiler = util.type(boiler).function || null;
+
+  if(boiler && this[name]){
+    this.boil.method[name] = boiler;
+    return this;
+  } else if(this.boil.method[name]){
+    stems = this.boil.method[name].call(this, stems, regexp);
+    if(util.type(stems).array){ return stems; }
+    throw new util.Error(
+      'boil(method[, boiler, regexp]): boiler should return an array');
+  }
+
+  if(!stems.string && !stems.array){ return [ ]; }
+  return (stems.string || stems.array.join(' ')).trim().split(regexp);
+};
+
+//
+// ## Hie.parse
+//
+
+Hie.prototype.parse = function(prop, parser){
+  if(!parser){
+    var copy = this.parser.method[prop];
+    return copy;
+  }
+
+  if(typeof prop !== 'string'){
+    throw new util.Error(
+      'parse(prop[, parser]):\n `prop` should be a string');
+  }
+  if(typeof parser !== 'function'){
+    throw new util.Error(
+      'parse(prop[, parser]):\n If given, `parser` should be a function');
+  }
+
+  this.parser.method[prop] = parser;
+  return this;
+};
+
+//
+// ## Hie.prototype.constructor
+//
+
+function Hie(opt){
+  opt = opt || { };
+  if( !(this instanceof Hie) ){
+    return new Hie(opt);
+  }
+
+  Object.defineProperty(this, 'cache', {
+    writable: true,
+    enumerable: false,
+    configurable: false,
+    value: {
+      name: util.type(opt.name).string || '#rootNode',
+      depth: 0
+    }
+  });
+
+  this.boil.method = { };
+  this.parse.method = { };
+
+  //
+  // #### parse `handle` props
+  //
+
+  this.parse('aliases', function (node, stems, aliases){
+    aliases = util.boil(aliases);
+    if(!aliases.length){  return this;  }
+
+    node.aliases = node.aliases || { };
+    node.completion = node.completion || [ ];
+    aliases.forEach(function(alias){
+      node.aliases[alias] = stems.join(' ');
+      if(node.completion.indexOf(alias) < 0){
+        node.completion.push(alias);
+      }
+    });
+    return this;
+  });
+
+  //
+  // #### parse `handle` props
+  //
+
+  this.parse('handle', function (node, stems, handle){
+    var len;
+    if((len = stems.length)){
+      node.children[stems[len-1]].handle = handle;
+    } else {
+      node.handle = handle;
+    }
+    return this;
+  });
+
+  //
+  // #### parse `completion` props
+  //
+
+  this.parse('completion', function (node, stems, completion){
+    completion = util.boil(completion);
+    if(!completion.length){  return this;  }
+    completion.forEach(function(name){
+      node.completion = node.completion || [ ];
+      if(node.completion.indexOf(name) < 0){
+        node.completion.push(name);
+      }
+    });
+  });
+}

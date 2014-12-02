@@ -1,0 +1,36 @@
+{
+  "name": "hie",
+  "main": "index.js",
+  "version": "0.6.8",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "dependencies": {
+    "herro": "^0.1.48",
+    "lodash.clone": "^2.4.1",
+    "utils-merge": "^1.0.0",
+    "utils-type": "*"
+  },
+  "author": "Javier Carrillo",
+  "description": "object hierarchy",
+  "repository": "stringparser/node-hie",
+  "homepage": "https://github.com/stringparser/node-hie",
+  "bugs": {
+    "url": "https://github.com/stringparser/node-hie/issues"
+  },
+  "scripts": {
+    "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
+    "test": "npm run-script lint && mocha --reporter spec test/_main.js"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "jshint-stylish": "*",
+    "jshint": "*"
+  },
+  "keywords": [
+    "object",
+    "hierarchy"
+  ],
+  "license": "MIT"
+}
