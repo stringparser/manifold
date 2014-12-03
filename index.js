@@ -82,7 +82,6 @@ function Hie(opt){
 Hie.prototype.boil = function(prop, stems_, regexp_){
   var self = null, boiler = null;
 
-  if(this[prop]){ prop = '#' + prop; }
   if(util.type(prop).string && util.type(stems_).function){
     self = this; boiler = stems_;
     this.method.boil[prop] = function(stems, regex){
