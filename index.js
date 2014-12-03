@@ -13,14 +13,14 @@ exports = module.exports = Hie;
 //
 
 function Hie(opt){
-  if( !(this instanceof Hie) ){
-    return new Hie(opt);
-  }
-
   opt = opt || { };
 
+  if(!(this instanceof Hie)){ return new Hie(opt); }
+
+  // ## Hie.method
   this.method = {boil: { }, parse: { }};
 
+  // ## Hie.cache
   Object.defineProperty(this, 'cache', {
     writable: true,
     enumerable: false,
@@ -31,10 +31,7 @@ function Hie(opt){
     }
   });
 
-  //
   // #### parse `children` props
-  //
-
   this.parse('children', function(node, stems, stem){
     node.children = node.children || { };
     node.children[stem] = node.children[stem] || {
@@ -44,20 +41,14 @@ function Hie(opt){
     };
   });
 
-  //
   // #### parse `handle` props
-  //
-
   this.parse('handle', function (node, stems, handle){
     var len = stems.length;
     if(len){  node.children[stems[len-1]].handle = handle;  }
       else {  node.handle = handle;  }
   });
 
-  //
   // #### parse `completion` props
-  //
-
   this.parse('completion', function (node, stems, completion){
     completion = this.boil('completion', completion);
     if(!completion.length){  return null;  }
@@ -69,10 +60,7 @@ function Hie(opt){
     });
   });
 
-  //
   // #### parse `aliases` props
-  //
-
   this.parse('aliases', function (node, stems, aliases){
     aliases = this.boil('aliases', aliases);
     if(!aliases.length){  return null;  }
@@ -117,7 +105,6 @@ Hie.prototype.boil = function(prop, stems_, regexp_){
 //
 
 Hie.prototype.parse = function(prop, parser){
-  if(this[prop]){ prop = '#' + prop; }
   if(!util.type(parser).function){
     return this.method.parse[prop] || util.parser;
   }
@@ -142,34 +129,29 @@ Hie.prototype.set = function(stems, opts){
   opts = optsIs.plainObject || stemsIs.plainObject || { };
   opts.handle = optsIs.function || stemsIs.function;
 
+  if(!opts.handle){ delete opts.handle; }
   if(stemsIs.array){
-    opts.aliases = stems.slice(1);
-    stems = stems[0];
+    opts.aliases = stems.slice(1); stems = stems[0];
+    if(!opts.aliases){ delete opts.aliases; }
   }
 
   stems = this.boil('#set', stems);
-
   var node = this.cache, parent = this.cache;
   stems.forEach(function createChildren(stem){
     this.parse('children').call(this, node, stems, stem);
     this.parse('completion').call(this, node, stems, stem);
-    parent = node; 
-      node = node.chilren[stem];
+    parent = node; node = node.chilren[stem];
   }, this);
 
-  var parse = this.method.parse;
   Object.keys(opts).forEach(function parseProps(prop){
     var value = opts[prop];
-    if(value === void 0){ return ; }
     if(value === null){ return delete node[prop]; }
+    if(value === void 0){ return ; }
 
-    if(parse[prop]){
-       parse[prop].call(this, parent, stems, value);
-    } else if(util.type(value).plainObject){
-      node[prop] = node[prop] || { };
-      util.merge(node[prop], util.clone(value));
+    if(this.method.parse[prop]){
+      this.parse(prop).call(this, parent, stems, value);
     } else {
-      node[prop] = util.clone(value);
+      this.parse('#set').call(this, node, prop, value);
     }
   }, this);
 
@@ -188,15 +170,14 @@ Hie.prototype.get = function(stems){
   while(stems[index]){
     stem = stems[index];
     if(found.aliases && found.aliases[stem]){
-      stems = stems.join(' ').replace(stem, found.aliases[stem]);
-      stems = boil(stems); stem = stems[index];
+      stems = boil( stems.join(' ').replace(stem, found.aliases[stem]) );
+       stem = stems[index];
     }
     if(found.children && found.children[stem]){
       index++; found = found.children[stem];
-    } else { index = -1; }
-  }
+    } else { index = -1;}
+  } index = stem = null; // wipe
 
   var shallow = util.merge({ }, found);
-  stem = null; // wipe
-  return shallow;
+  return this.parse('#get', shallow);
 };
