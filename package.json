@@ -29,7 +29,7 @@
     "jshint": "*"
   },
   "keywords": [
-    "object",
+    "extensible",
     "hierarchy"
   ],
   "license": "MIT"
