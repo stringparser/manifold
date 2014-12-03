@@ -109,7 +109,7 @@ Hie.prototype.boil = function(name, stems_, regexp_){
   }
 
   var boiler = null, self = null;
-  if(util.type(stems_).function){  // set
+  if(util.type(stems_).function){
     self = this; boiler = stems_;
     this.boil.method[name] = function(stems, regex){
       regex = util.type(regex).regexp || /[ ]+/;
@@ -133,8 +133,7 @@ Hie.prototype.boil = function(name, stems_, regexp_){
 Hie.prototype.parse = function(prop, parser){
 
   if(!parser){
-    var copy = this.parser.method[prop];
-    return copy;
+    return this.parser.method[prop] || util.parser;
   }
 
   if(typeof prop !== 'string'){
