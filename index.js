@@ -15,12 +15,9 @@ exports = module.exports = Hie;
 Hie.prototype.set = function(stems, opts){
   var stemsIs = util.type(stems);
   if( !stemsIs.match(/function|string|array|object/g) ){
-   throw new util.Error('boil(stems [,options]) \n'+
+   throw new util.Error('set(stems [,options]) \n'+
      'should have at least one argument being: \n'+
-     ' - a `string`\n'+
-     ' - an `array` of `strings`\n'+
-     ' - a `function`\n'+
-     ' - an `object`'
+     '  a `string`, an `array`, a function or an object'
    );
   }
 
@@ -67,7 +64,7 @@ Hie.prototype.set = function(stems, opts){
     if(parse[prop]){
       parse[prop].call(this, parent, stems, value);
     } else if(util.type(value).plainObject){
-      util.merge(node[prop], util.clone(value));
+      util.merge(node[prop], util.clone(value, true));
     } else {
       node[prop] = util.clone(value);
     }
@@ -89,8 +86,7 @@ Hie.prototype.get = function(stems){
     stem = stems[index];
     if(found.aliases && found.aliases[stem]){
       stems = stems.join(' ').replace(stem, found.aliases[stem]);
-      stems = boil(stems);
-       stem = stems[index];
+      stems = boil(stems); stem = stems[index];
     }
     if(found.children && found.children[stem]){
       index++; found = found.children[stem];
@@ -191,7 +187,7 @@ function Hie(opt){
   //
 
   this.parse('aliases', function (node, stems, aliases){
-    aliases = util.boil(aliases);
+    aliases = this.boil('set', aliases);
     if(!aliases.length){  return this;  }
 
     node.aliases = node.aliases || { };
@@ -202,7 +198,6 @@ function Hie(opt){
         node.completion.push(alias);
       }
     });
-    return this;
   });
 
   //
@@ -210,13 +205,9 @@ function Hie(opt){
   //
 
   this.parse('handle', function (node, stems, handle){
-    var len;
-    if((len = stems.length)){
-      node.children[stems[len-1]].handle = handle;
-    } else {
-      node.handle = handle;
-    }
-    return this;
+    var len = stems.length;
+    if(len){  node.children[stems[len-1]].handle = handle;  }
+      else {  node.handle = handle;  }
   });
 
   //
@@ -224,7 +215,7 @@ function Hie(opt){
   //
 
   this.parse('completion', function (node, stems, completion){
-    completion = util.boil(completion);
+    completion = util.boil('set', completion);
     if(!completion.length){  return this;  }
     completion.forEach(function(name){
       node.completion = node.completion || [ ];
