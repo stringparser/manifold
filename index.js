@@ -119,8 +119,9 @@ Hie.prototype.boil = function(name, stems_, regexp_){
         'boil(method, boiler[, regexp]):\n > boiler should return an array');
     };
     return this;
+  }
 
-  } else if(!this.boil.method[name]){ // ensure
+  if(!this.boil.method[name]){ // ensure
     this.boil.method[name] = function(stems, regex){
       stems = util.type(stems);
       regex = util.type(regex).regexp || /[ ]+/;
