@@ -34,7 +34,7 @@ Hie.prototype.set = function(stems, opts){
   stemsIs = optsIs = null; //wipe
 
   var node = this.cache, parent = this.cache;
-  function createChildren(stem, index){
+  stems.forEach(function createChildren(stem, index){
     node.children = node.children || { };
     if(stem && !node.children[stem]){
       node.children[stem] = {
@@ -49,9 +49,7 @@ Hie.prototype.set = function(stems, opts){
     }
     node = node.chilren[stem];
     if(stems[index+1]){ parent = node; }
-  }
-
-  if(stems.length){ stems.forEach(createChildren); }
+  });
 
   var parse = this.parse.method;
   Object.keys(opts).forEach(function parseProps(prop){
