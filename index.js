@@ -121,16 +121,7 @@ Hie.prototype.boil = function(name, stems_, regexp_){
     return this;
   }
 
-  if(!this.boil.method[name]){ // ensure
-    this.boil.method[name] = function(stems, regex){
-      stems = util.type(stems);
-      regex = util.type(regex).regexp || /[ ]+/;
-      if(!stems.string && !stems.array){ return [ ]; }
-      return (stems.string || stems.array.join(' ')).trim().split(regex);
-    };
-  }
-
-  boiler = this.boil.method[name];
+  boiler = this.boil.method[name] || util.boil;
   if(stems_){ return boiler(stems_, regexp_); }
   return boiler;
 };
