@@ -12,7 +12,7 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "object hierarchy",
+  "description": "extensible hierarchy",
   "repository": "stringparser/node-hie",
   "homepage": "https://github.com/stringparser/node-hie",
   "bugs": {
