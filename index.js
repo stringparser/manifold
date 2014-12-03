@@ -57,7 +57,7 @@ Hie.prototype.set = function(stems, opts){
   Object.keys(opts).forEach(function parseProps(prop){
     var value = opts[prop];
     if(value === void 0){ return ; }
-    else if(value === null){ return delete node[prop]; }
+    if(value === null){ return delete node[prop]; }
 
     node[prop] = node[prop] || { };
 
