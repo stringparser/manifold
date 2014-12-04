@@ -69,7 +69,7 @@ Hie.prototype.set = function(stems, opts){
     if(!opts.aliases){ delete opts.aliases; }
   }
 
-  stems = this.boil('#set').call(this, stems.array || stems.string);
+  stems = this.boil('#set')(stems.array || stems.string);
   var node = this.cache, parent = this.cache;
   stems.forEach(function createChildren(stem, index){
     node.children = node.children || { };
@@ -95,9 +95,9 @@ Hie.prototype.set = function(stems, opts){
     if(value === void 0){ return ; }
     if(value === null){ return delete node[prop]; }
     if(this.method.parse[prop]){
-      this.parse(prop).call(this, parent, stems, value);
+      this.parse(prop)(parent, stems, value);
     } else {
-      this.parse('#set').call(this, node, prop, value);
+      this.parse('#set')(node, prop, value);
     }
   }, this);
 
@@ -170,7 +170,7 @@ function Hie(opt){
 
   // #### parse `completion` props
   hie.parse('completion', function (node, stems, completion){
-    completion = this.boil('completion', completion);
+    completion = hie.boil('completion', completion);
     if(!completion.length){  return null;  }
     completion.forEach(function(name){
       node.completion = node.completion || [ ];
@@ -182,16 +182,15 @@ function Hie(opt){
 
   // #### parse `aliases` props
   hie.parse('aliases', function (node, stems, aliases){
-    aliases = this.boil('aliases', aliases);
+    aliases = hie.boil('aliases', aliases);
     if(!aliases.length){  return null;  }
-    node.aliases = this.cache.aliases || { };
-    node.completion = node.completion || [ ];
+    var completion = [ ];
+    node.aliases = hie.cache.aliases || { };
     aliases.forEach(function(alias){
+      completion.push(alias);
       node.aliases[alias] = stems.join(' ');
-      if(node.completion.indexOf(alias) < 0){
-        node.completion.push(alias);
-      }
-    }, this);
+    });
+    hie.parse('completion', node, stems, completion);
   });
 
   return hie;
