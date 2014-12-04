@@ -6,7 +6,10 @@ module.exports = {
   testSuite : function(){
     var testSuite = fs.readdirSync(__dirname);
     // in case there is priority
-    var testFirst = [];
+    var testFirst = [
+      'rootNode',
+      'children'
+    ];
     // files to exclude
     var exclude = [
       '_main.js',
@@ -14,8 +17,10 @@ module.exports = {
     ];
 
     // use it also to omit _main & _util files
-    return testFirst.concat(exclude).forEach(function(file){
+    testFirst.concat(exclude).forEach(function(file){
       testSuite.splice(testSuite.indexOf(file), 1);
-    }).concat(testSuite);
+    });
+
+    return testFirst.concat(testSuite);
   }
 };

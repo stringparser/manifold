@@ -9,73 +9,6 @@ var util = require('./lib/util');
 exports = module.exports = Hie;
 
 //
-// ## Hie.prototype.constructor
-//
-
-function Hie(opt){
-  opt = opt || { };
-
-  if(!(this instanceof Hie)){ return new Hie(opt); }
-
-  // ## Hie.method
-  this.method = {boil: { }, parse: { }};
-
-  // ## Hie.cache
-  Object.defineProperty(this, 'cache', {
-    writable: true,
-    enumerable: false,
-    configurable: false,
-    value: {
-      name: util.type(opt.name).string || '#rootNode',
-      depth: 0
-    }
-  });
-
-  // #### parse `children` props
-  this.parse('children', function(node, stems, stem){
-    node.children = node.children || { };
-    node.children[stem] = node.children[stem] || {
-      name: stem,
-      depth: node.depth + 1,
-      parent: ((node.parent || '') + ' ' + node.name).trim()
-    };
-  });
-
-  // #### parse `handle` props
-  this.parse('handle', function (node, stems, handle){
-    var len = stems.length;
-    if(len){  node.children[stems[len-1]].handle = handle;  }
-      else {  node.handle = handle;  }
-  });
-
-  // #### parse `completion` props
-  this.parse('completion', function (node, stems, completion){
-    completion = this.boil('completion', completion);
-    if(!completion.length){  return null;  }
-    completion.forEach(function(name){
-      node.completion = node.completion || [ ];
-      if(node.completion.indexOf(name) < 0){
-        node.completion.push(name);
-      }
-    });
-  });
-
-  // #### parse `aliases` props
-  this.parse('aliases', function (node, stems, aliases){
-    aliases = this.boil('aliases', aliases);
-    if(!aliases.length){  return null;  }
-    node.aliases = node.aliases || { };
-    node.completion = node.completion || [ ];
-    aliases.forEach(function(alias){
-      node.aliases[alias] = stems.join(' ');
-      if(node.completion.indexOf(alias) < 0){
-        node.completion.push(alias);
-      }
-    });
-  });
-}
-
-//
 // ## Hie.boil
 //
 
@@ -116,8 +49,9 @@ Hie.prototype.parse = function(prop, parser){
 //
 
 Hie.prototype.set = function(stems, opts){
-  var stemsIs = util.type(stems);
-  if( !stemsIs.match(/function|string|array|object/g) ){
+
+  stems = util.type(stems);
+  if( !stems.match(/function|string|array|object/g) ){
    throw new util.Error('set(stems [,options]) \n'+
      'stems should have type: \n'+
      '  `string`, `array`, `function` or `object`'
@@ -125,28 +59,41 @@ Hie.prototype.set = function(stems, opts){
   }
 
   var optsIs = util.type(opts);
-  opts = optsIs.plainObject || stemsIs.plainObject || { };
-  opts.handle = optsIs.function || stemsIs.function;
+  opts = optsIs.plainObject || stems.plainObject || { };
+  opts.handle = optsIs.function || stems.function;
 
   if(!opts.handle){ delete opts.handle; }
-  if(stemsIs.array){
-    opts.aliases = stems.slice(1); stems = stems[0];
+  if(stems.array){
+    opts.aliases = stems.array.slice(1);
+    stems.array = stems.array[0];
     if(!opts.aliases){ delete opts.aliases; }
   }
 
-  stems = this.boil('#set', stems);
+  stems = this.boil('#set').call(this, stems.array || stems.string);
   var node = this.cache, parent = this.cache;
-  stems.forEach(function createChildren(stem){
-    this.parse('children').call(this, node, stems, stem);
-    this.parse('completion').call(this, node, stems, stem);
-    parent = node; node = node.chilren[stem];
+  stems.forEach(function createChildren(stem, index){
+    node.children = node.children || { };
+    if(!node.children[stem]){
+      node.children[stem] = {
+        name: stems.slice(0, index + 1).join(' '),
+        depth: node.depth + 1,
+        parent: node.depth > 1
+          ? node.parent + ' ' + node.name
+          : node.name
+      };
+      node.completion = node.completion || [ ];
+      if(node.completion.indexOf(stem) < 0){
+        node.completion.push(stem);
+      }
+    }
+    node = node.children[stem];
+    if(stems[index+1]){ parent = node; }
   }, this);
 
   Object.keys(opts).forEach(function parseProps(prop){
     var value = opts[prop];
-    if(value === null){ return delete node[prop]; }
     if(value === void 0){ return ; }
-
+    if(value === null){ return delete node[prop]; }
     if(this.method.parse[prop]){
       this.parse(prop).call(this, parent, stems, value);
     } else {
@@ -178,5 +125,74 @@ Hie.prototype.get = function(stems){
   } index = stem = null; // wipe
 
   var shallow = util.merge({ }, found);
-  return this.parse('#get', shallow);
+  return this.parse('#get')(shallow);
 };
+
+//
+// ## Hie.prototype.constructor
+//
+
+function Hie(opt){
+  opt = opt || { };
+
+  if(!(this instanceof Hie)){ return new Hie(opt); }
+
+  function hie(stems, opts){
+    return hie.set(stems, opts);
+  }
+  util.merge(hie, this);
+
+  // ## Hie.cache
+  Object.defineProperty(hie, 'cache', {
+    writable: true,
+    enumerable: false,
+    configurable: false,
+    value: {
+      name: util.type(opt.name).string || '#rootNode',
+      depth: 0
+    }
+  });
+
+  // ## Hie.method
+  Object.defineProperty(hie, 'method', {
+    writable: true,
+    enumerable: false,
+    configurable: false,
+    value:{boil:{}, parse:{}}
+  });
+
+  // #### parse `handle` props
+  hie.parse('handle', function (node, stems, handle){
+    var len = stems.length;
+    if(len){ node.children[stems[len-1]].handle = handle; }
+      else { node.handle = handle; }
+  });
+
+  // #### parse `completion` props
+  hie.parse('completion', function (node, stems, completion){
+    completion = this.boil('completion', completion);
+    if(!completion.length){  return null;  }
+    completion.forEach(function(name){
+      node.completion = node.completion || [ ];
+      if(node.completion.indexOf(name) < 0){
+        node.completion.push(name);
+      }
+    });
+  });
+
+  // #### parse `aliases` props
+  hie.parse('aliases', function (node, stems, aliases){
+    aliases = this.boil('aliases', aliases);
+    if(!aliases.length){  return null;  }
+    node.aliases = this.cache.aliases || { };
+    node.completion = node.completion || [ ];
+    aliases.forEach(function(alias){
+      node.aliases[alias] = stems.join(' ');
+      if(node.completion.indexOf(alias) < 0){
+        node.completion.push(alias);
+      }
+    }, this);
+  });
+
+  return hie;
+}

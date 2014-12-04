@@ -1,8 +1,11 @@
-'use strict';
+/* jshint strict: false */
+/* global pack: true, util: true, should: true */
 
-var pack = require('../');
+pack = require('../');
+should = require('should');
+util = require('./_util.js');
+
 var path = require('path');
-var util = require('./_util.js');
 var packageName = require('../package').name;
 
 describe(packageName, function(){
@@ -10,7 +13,7 @@ describe(packageName, function(){
     var suite = path.basename(file, path.extname(file));
     describe(suite, function(){
       // the actual suite code
-      require('./'+file)(pack, util);
+      require('./'+file);
     });
   });
 });

@@ -1,17 +1,25 @@
-'use strict';
+/* jshint strict: false */
+/* global pack: true */
 
-var should = require('should');
-var use, input, args, result;
+var rootName = 'rootNode';
+var hie = new pack({ name: rootName });
 
-module.exports = function(Parth, util){
-  should.exists(util);
-  var parth = Parth();
-  use = 'string args';
-  it('should handle '+use, function(){
-    input = 'hey :there :you';
-    args = 'hey string person';
-    result = parth.set(input).get(args);
-    should(result.input).be.eql('hey string person');
-    should(result.path).be.eql('hey :there :you');
-  });
-};
+it('should have property name ', function(){
+  hie.get()
+    .should.have
+    .property('name', rootName);
+});
+
+function rootHandle(){ return; }
+it('should have rootHandle', function(){
+  hie(rootHandle).get()
+    .should.have
+    .property('handle', rootHandle);
+});
+
+var rootCompletion = ['one', 'two', 'three'];
+it('should have completion', function(){
+  hie({ completion: rootCompletion}).get()
+    .should.have
+    .property('completion', rootCompletion);
+});
