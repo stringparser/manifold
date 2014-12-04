@@ -6,6 +6,12 @@ var hie = new pack({ name: rootName });
 
 it('should have proper parent', function(){
 
+  hie.get()
+    .should.be
+    .an.Object
+    .and.have
+    .property('parent', undefined);
+    
   hie.get('hello')
     .should.be
     .an.Object
