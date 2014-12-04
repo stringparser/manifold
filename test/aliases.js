@@ -17,14 +17,11 @@ it('should be have aliases', function(){
 
 it('aliases should go to original command', function(){
   hie.get('alias-1')
-    .should.have
-    .property('name', 'command');
+    .should.have.property('name', 'command');
 
   hie.get('alias-2')
-    .should.have
-    .property('name', 'command');
+    .should.have.property('name', 'command');
 
   hie.get('alias-3')
-    .should.have
-    .property('name', 'command');
+    .should.have.property('name', 'command');
 });
