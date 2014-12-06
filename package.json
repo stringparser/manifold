@@ -1,15 +1,15 @@
 {
   "name": "manifold",
   "main": "index.js",
-  "version": "0.6.8",
+  "version": "1.0.0",
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 0.8.0"
   },
   "dependencies": {
     "herro": "^0.1.48",
-    "lodash.clone": "^2.4.1",
+    "utils-type": "*",
     "utils-merge": "^1.0.0",
-    "utils-type": "*"
+    "lodash.clone": "^2.4.1"
   },
   "author": "Javier Carrillo",
   "description": "object manifold",
@@ -25,13 +25,13 @@
   "devDependencies": {
     "mocha": "*",
     "should": "*",
-    "jshint-stylish": "*",
-    "jshint": "*"
+    "jshint": "*",
+    "jshint-stylish": "*"
   },
   "keywords": [
     "maleable",
-    "object",
-    "manifold"
+    "manifold",
+    "object"
   ],
   "license": "MIT"
 }
