@@ -2,23 +2,28 @@
 /* global pack: true */
 
 var rootName = 'parentTest';
-var hie = new pack({ name: rootName });
+var app = new pack({ name: rootName });
 
-it('should have proper parent', function(){
+it('should have its parent', function(){
 
-  hie.get()
+  app.get()
     .should.be.an.Object
     .and.have.property('parent', undefined);
 
-  hie.get('hello')
+  app.get('hello')
     .should.be.an.Object
     .and.have.property('parent', 'parentTest');
 
-  hie.get('hello there')
+  app.get('hello there')
     .should.be.an.Object
     .and.have.property('parent', 'hello');
 
-  hie.get('hello there you')
+  app.get('hello there you')
     .should.be.an.Object
     .and.have.property('parent', 'hello there');
+});
+
+var aliases = ['a-1', 'a-2', 'a-3'];
+it('should work using aliases', function(){
+  console.log(aliases, app.get());
 });
