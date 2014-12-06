@@ -1,176 +1,60 @@
 'use strict';
 
+// ## dependencies
+//
 var util = require('./lib/util');
 
-//
 // ## exports
 //
+exports = module.exports = Manifold;
 
-exports = module.exports = Hie;
-
+// # Manifold constructor
 //
-// ## Hie.boil
-//
+function Manifold(opt, manifold_){
 
-Hie.prototype.boil = function(prop, stems_, regexp_){
-  var self = null, boiler = null;
-
-  if(util.type(prop).string && util.type(stems_).function){
-    self = this; boiler = stems_;
-    this.method.boil[prop] = function(stems, regex){
-      regex = util.type(regex).regexp || /[ ]+/;
-      stems = boiler.call(self, util.type(stems), regex);
-      if(util.type(stems).array){ return stems; }
-      throw new util.Error(
-        'boil(prop[, stems, regexp]):\n > boiler should return an array');
-    };
-    return this;
+  if(!(this instanceof Manifold)){
+    return new Manifold(opt, manifold_);
   }
 
-  boiler = this.method.boil[prop] || util.boiler;
-  if(stems_){ return boiler(stems_, regexp_); }
-  return boiler;
-};
-
-//
-// ## Hie.parse
-//
-
-Hie.prototype.parse = function(prop, parser){
-  if(!util.type(parser).function){
-    return this.method.parse[prop] || util.parser;
+  function manifold(stems, opts){
+    return manifold.set(stems, opts);
   }
-  this.method.parse[prop] = parser;
-  return this;
-};
+  util.merge(manifold, this);
 
-//
-// ## Hie.set
-//
-
-Hie.prototype.set = function(stems, opts){
-
-  stems = util.type(stems);
-  if( !stems.match(/function|string|array|object/g) ){
-   throw new util.Error('set(stems [,options]) \n'+
-     'stems should have type: \n'+
-     '  `string`, `array`, `function` or `object`'
-   );
-  }
-
-  var optsIs = util.type(opts);
-  opts = optsIs.plainObject || stems.plainObject || { };
-  opts.handle = optsIs.function || stems.function;
-
-  if(!opts.handle){ delete opts.handle; }
-  if(stems.array){
-    opts.aliases = stems.array.slice(1);
-    stems.array = stems.array[0];
-    if(!opts.aliases){ delete opts.aliases; }
-  }
-
-  stems = this.boil('#set')(stems.array || stems.string);
-  var node = this.cache, parent = this.cache;
-  stems.forEach(function createChildren(stem, index){
-    node.children = node.children || { };
-    if(!node.children[stem]){
-      node.children[stem] = {
-        name: stems.slice(0, index + 1).join(' '),
-        depth: node.depth + 1,
-        parent: node.depth > 1
-          ? node.parent + ' ' + node.name
-          : node.name
-      };
-      node.completion = node.completion || [ ];
-      if(node.completion.indexOf(stem) < 0){
-        node.completion.push(stem);
-      }
-    }
-    node = node.children[stem];
-    if(stems[index+1]){ parent = node; }
-  }, this);
-
-  Object.keys(opts).forEach(function parseProps(prop){
-    var value = opts[prop];
-    if(value === void 0){ return ; }
-    if(value === null){ return delete node[prop]; }
-    if(this.method.parse[prop]){
-      this.parse(prop)(parent, stems, value);
-    } else {
-      this.parse('#set')(node, prop, value);
-    }
-  }, this);
-
-  return this;
-};
-
-//
-// ## Hie.get
-//
-
-Hie.prototype.get = function(stems){
-  var boil = this.boil('#get');
-  var stem, index = 0, found = this.cache;
-
-  stems = boil(stems);
-  while(stems[index]){
-    stem = stems[index];
-    if(found.aliases && found.aliases[stem]){
-      stems = boil( stems.join(' ').replace(stem, found.aliases[stem]) );
-       stem = stems[index];
-    }
-    if(found.children && found.children[stem]){
-      index++; found = found.children[stem];
-    } else { index = -1;}
-  } index = stem = null; // wipe
-
-  var shallow = util.merge({ }, found);
-  return this.parse('#get')(shallow);
-};
-
-//
-// ## Hie.prototype.constructor
-//
-
-function Hie(opt){
   opt = opt || { };
+  if(!(manifold_ instanceof Manifold)){ manifold_ = { }; }
 
-  if(!(this instanceof Hie)){ return new Hie(opt); }
+  // ## manifold.cache
+  manifold.cache = util.merge({ }, manifold_.cache) || {
+    name: util.type(opt.name).string || '#rootNode',
+    depth: 0
+  };
 
-  function hie(stems, opts){
-    return hie.set(stems, opts);
-  }
-  util.merge(hie, this);
+  // ## manifold.method
+  manifold.method = {boil:{}, parse:{}, _: {boil:[], parse:[]}};
 
-  // ## Hie.cache
-  Object.defineProperty(hie, 'cache', {
-    writable: true,
-    enumerable: false,
-    configurable: false,
-    value: {
-      name: util.type(opt.name).string || '#rootNode',
-      depth: 0
+  // ### parse `aliases` props
+  manifold.parse('aliases', function (node, stems, aliases){
+    aliases = manifold.boil('aliases', aliases);
+    if(!aliases.length){  return null;  }
+    var completion = [ ];
+    node.aliases = node.aliases || { };
+    aliases.forEach(function(alias){
+      completion.push(alias);
+      node.aliases[alias] = stems.join(' ');
+    });
+    this.parse('completion')(node, stems, completion);
+  });
+
+  if(opt.completion === null){ return manifold; }
+
+  // ### parse `completion` props
+  manifold.parse('completion', function (node, stem, completion){
+    node.completion = node.completion || [ ];
+    if(node.completion.indexOf(stem) < 0){
+      node.completion.push(stem);
     }
-  });
-
-  // ## Hie.method
-  Object.defineProperty(hie, 'method', {
-    writable: true,
-    enumerable: false,
-    configurable: false,
-    value:{boil:{}, parse:{}}
-  });
-
-  // #### parse `handle` props
-  hie.parse('handle', function (node, stems, handle){
-    var len = stems.length;
-    if(len){ node.children[stems[len-1]].handle = handle; }
-      else { node.handle = handle; }
-  });
-
-  // #### parse `completion` props
-  hie.parse('completion', function (node, stems, completion){
-    completion = hie.boil('completion', completion);
+    completion = manifold.boil('completion', completion);
     if(!completion.length){  return null;  }
     completion.forEach(function(name){
       node.completion = node.completion || [ ];
@@ -180,18 +64,140 @@ function Hie(opt){
     });
   });
 
-  // #### parse `aliases` props
-  hie.parse('aliases', function (node, stems, aliases){
-    aliases = hie.boil('aliases', aliases);
-    if(!aliases.length){  return null;  }
-    var completion = [ ];
-    node.aliases = hie.cache.aliases || { };
-    aliases.forEach(function(alias){
-      completion.push(alias);
-      node.aliases[alias] = stems.join(' ');
+  return manifold;
+}
+
+// ## Manifold.boil
+//
+Manifold.prototype.boil = function(prop, boiler){
+  if(arguments.length < 2){ return this.method.boil[prop] || util.boiler; }
+  if(typeof prop !== 'string'){
+    prop = JSON.stringify(prop);
+    throw new util.Error(
+      ' While setting `'+prop+'` at this.boil(prop[, boiler]):\n' +
+      ' > `prop` should be a string and, if given, `boiler` a function');
+  }
+  // add it to the list of boilers
+  if(!this.method.boil[prop]){ this.method._.boil.push(prop); }
+
+  var self = this;
+  this.method.boil[prop] = function(stems, opts){
+    stems = util.boiler(stems, opts);
+    stems = boiler.call(self, stems, opts);
+    if(util.type(stems).array){ return stems; }
+    throw new util.Error(
+      ' While boiling `'+prop+'` with boiler(stems, opts):\n'+
+      ' > a boiler should return an array');
+  };
+
+  return this;
+};
+
+// ## Manifold.parse
+//
+Manifold.prototype.parse = function(prop, parser){
+  if(arguments.length < 2){ return this.method.parse[prop] || util.parser; }
+  if(typeof prop !== 'string'){
+    prop = JSON.stringify(prop);
+    throw new util.Error(
+      ' While setting `'+prop+'` at this.parse(prop[, parser]):\n' +
+      ' > `prop` should be a string and, if given, `parser` a function');
+  }
+  // add it to the list of parsers
+  if(!this.method.parse[prop]){ this.method._.parse.push(prop); }
+
+  var self = this;
+  this.method.parse[prop] = function(/* arguments */){
+    var parsed = parser.call(self, arguments);
+    if(util.type(parsed).object){ return parsed; }
+    throw new util.Error(
+      ' While parsing `'+prop+'` \n'+
+      ' parser.apply(self, arguments):\n'+
+      ' > a parser should return an object');
+  };
+
+  return this;
+};
+
+// ## Manifold.set
+// > premise: set relaxed get fast
+//
+Manifold.prototype.set = function(stems_, opts_){
+  var stems = util.type(stems_);
+  if( !stems.match(/function|string|array|object/g) ){
+   throw new util.Error('set(stems [,options]) \n'+
+     '> stems should be: `string`, `array`, `function` or `object`');
+  }
+
+  var self = this, opts = util.type(opts_);
+  var node = this.cache, parent = this.cache;
+  var parseProps = this.method._.parse.slice();
+
+  opts = opts.plainObject || stems.plainObject || { };
+  opts.handle = stems.function || opts.function;
+  stems = this.boil('#set')(stems.array || stems.string, opts);
+
+  stems.forEach(function createChildren(stem, index){
+    // ensure node existence
+    if(!node.children){ node.children = { }; }
+    if(!node.children[stem]){
+      node.children[stem] = {
+        name: stems.slice(0, index + 1).join(' '),
+        depth: node.depth + 1,
+        parent: node.depth > 1
+          ? node.parent + ' ' + node.name
+          : node.name
+      };
+    }
+    // keep parent to parse #set opts,
+    // go next node and parse child props
+    parent = node;
+    node = node.children[stem];
+    parseProps.forEach(function(prop){
+      self.parse(prop)(parent, stem);
     });
-    hie.parse('completion', node, stems, completion);
   });
 
-  return hie;
-}
+  // process props of last node from its parent using opts
+  Object.keys(opts).forEach(function parseProps(prop){
+    var value = opts[prop];
+    if(value === void 0){ return ; }
+    if(value === null){ return delete node[prop]; }
+    if(parseProps.indexOf(prop) > -1){ // parser gets the parent
+      self.parse(prop)(parent, stems, value);
+    } else if(util.type(value).plainObject){
+      node[prop] = node[prop] || { };
+      util.merge(node[prop], util.clone(value));
+    } else {
+      node[prop] = util.clone(value);
+    }
+  });
+
+  // wipe & return
+  stems = opts = parseProps = null;
+  return this.parse('#set')(this, opts);
+};
+
+// ## Manifold.get
+// > premise: fallback to parent
+//
+Manifold.prototype.get = function(stems, opts){
+  var boil = this.boil('#get');
+  var stem, index = 0, found = this.cache;
+
+  stems = boil(stems)(stem, opts);
+  while((stem = stems[index])){
+    if(found.aliases && found.aliases[stem]){
+      stems = boil(stems.join(' ').replace(stem, found.aliases[stem]), opts);
+       stem = stems[index];
+    }
+    if(found.children && found.children[stem]){
+      index++; found = found.children[stem];
+    } else { index = -1; }
+  }
+
+  // wipe, copy & return
+  index = stem = null;
+  var shallow = util.merge({ }, found);
+  return this.parse('#get')(shallow, opts);
+};
