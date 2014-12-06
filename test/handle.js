@@ -2,21 +2,21 @@
 /* global pack: true */
 
 var rootName = 'handle';
-var hie = new pack({ name: rootName });
+var app = new pack({ name: rootName });
 
 it('handle for the rootNode', function(){
   function rootHandle(){}
-  hie(rootHandle).get()
+  app(rootHandle).get()
     .should.have.property('handle', rootHandle);
 });
 
 it('handle for a command', function(){
   function child(){}
-  hie('hello child', child)
+  app('hello child', child)
     .get('hello').should
     .not.have.property('handle', child);
 
-  hie.get('hello child')
+  app.get('hello child')
     .should.have.property('handle', child);
 });
 
@@ -24,17 +24,17 @@ it('only last element should have handle', function(){
 
   function yourHandle(){}
 
-  hie('hello there your', yourHandle);
+  app('hello there your', yourHandle);
 
-  hie.get('hello')
+  app.get('hello')
     .should
     .not.have.property('handle');
 
-  hie.get('hello there')
+  app.get('hello there')
     .should
     .not.have.property('handle');
 
-  hie.get('hello there your')
+  app.get('hello there your')
     .should
     .have.property('handle', yourHandle);
 });

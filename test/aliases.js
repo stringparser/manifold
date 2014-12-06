@@ -2,26 +2,23 @@
 /* global pack: true */
 
 var rootName = 'aliases';
-var hie = new pack({ name: rootName });
+var app = new pack({ name: rootName });
 
-var aliases = ['alias-1', 'alias-2', 'alias-3'];
-it('should be have aliases', function(){
-  hie(['command'].concat(aliases)).get('orig')
-    .should.have
-    .property('aliases', {
-      'alias-1': 'command',
-      'alias-2': 'command',
-      'alias-3': 'command'
+var aliases = ['a-1', 'a-2', 'a-3'];
+it('should work using aliases', function(){
+  app(['get page.data'].concat(aliases)).get()
+    .should.be.an.Object
+    .and.have.property('aliases', {
+      'a-1' : 'get page.data',
+      'a-2' : 'get page.data',
+      'a-3' : 'get page.data'
     });
-});
 
-it('aliases should go to original command', function(){
-  hie.get('alias-1')
-    .should.have.property('name', 'command');
+  aliases.forEach(function(alias){
+    app.get(alias)
+      .should.have.property('parent', 'get');
 
-  hie.get('alias-2')
-    .should.have.property('name', 'command');
-
-  hie.get('alias-3')
-    .should.have.property('name', 'command');
+    app.get(alias)
+      .should.have.property('name', 'get page.data');
+  });
 });

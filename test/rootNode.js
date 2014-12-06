@@ -2,24 +2,24 @@
 /* global pack: true */
 
 var rootName = 'rootNode';
-var hie = new pack({ name: rootName });
+var app = new pack({ name: rootName });
 
 it('should have property name ', function(){
-  hie.get()
+  app.get()
     .should.have
     .property('name', rootName);
 });
 
 function rootHandle(){ return; }
 it('should have rootHandle', function(){
-  hie(rootHandle).get()
+  app(rootHandle).get()
     .should.have
     .property('handle', rootHandle);
 });
 
 var rootCompletion = ['one', 'two', 'three'];
 it('should have completion', function(){
-  hie({ completion: rootCompletion}).get()
+  app({ completion: rootCompletion}).get()
     .should.have
     .property('completion', rootCompletion);
 });
