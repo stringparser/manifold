@@ -160,7 +160,7 @@ Manifold.prototype.set = function(stems, opts){
 
   var self = this;
   var node = this.cache, parent = this.cache;
-  var parsers = this.method._.parse;
+  var parsers = this.method._.parse.slice();
 
   var optsIs = util.type(opts);
   opts = optsIs.plainObject || stemsIs.plainObject || { };
@@ -179,9 +179,7 @@ Manifold.prototype.set = function(stems, opts){
       node.children[stem] = {
         name: stems.slice(0, index + 1).join(' '),
         depth: node.depth + 1,
-        parent: node.depth > 1
-          ? node.parent + ' ' + node.name
-          : node.name
+        parent: stems.slice(0, index).join(' ') || node.name
       };
     }
     // keep parent to parse #set opts,

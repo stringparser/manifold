@@ -7,8 +7,8 @@ module.exports = {
     var testSuite = fs.readdirSync(__dirname);
     // in case there is priority
     var testFirst = [
-      'rootNode',
-      'children'
+      'rootNode.js',
+      'children.js'
     ];
     // files to exclude
     var exclude = [
