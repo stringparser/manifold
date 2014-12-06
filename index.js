@@ -43,7 +43,7 @@ function Manifold(opt, manifold_){
   // ### parse `aliases` props
   manifold.parse('aliases', function (node, stems, aliases){
     aliases = this.boil('aliases')(aliases);
-    if(!aliases.length){  return null;  }
+    if(!aliases.length){  return ;  }
     this.cache.aliases = this.cache.aliases || { };
     aliases.forEach(function(alias){
       this.cache.aliases[alias] = stems.join(' ');
@@ -55,9 +55,8 @@ function Manifold(opt, manifold_){
 
   // ### parse `completion` props
   manifold.parse('completion', function (node, stem, completion){
-    completion = completion || stem;
-    completion = this.boil('completion')(completion);
-    if(!completion.length){  return null;  }
+    completion = this.boil('completion')(completion || stem);
+    if(!completion.length){  return ;  }
     node.completion = node.completion || [ ];
     completion.forEach(function(name){
       if(node.completion.indexOf(name) < 0){
