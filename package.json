@@ -1,5 +1,5 @@
 {
-  "name": "hie",
+  "name": "manifold",
   "main": "index.js",
   "version": "0.6.8",
   "engines": {
@@ -12,11 +12,11 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "extensible hierarchy",
-  "repository": "stringparser/node-hie",
-  "homepage": "https://github.com/stringparser/node-hie",
+  "description": "maleable hierarchies",
+  "repository": "stringparser/node-manifold",
+  "homepage": "https://github.com/stringparser/node-manifold",
   "bugs": {
-    "url": "https://github.com/stringparser/node-hie/issues"
+    "url": "https://github.com/stringparser/node-manifold/issues"
   },
   "scripts": {
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
@@ -30,6 +30,7 @@
   },
   "keywords": [
     "extensible",
+    "manifold",
     "hierarchy"
   ],
   "license": "MIT"
