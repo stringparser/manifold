@@ -55,12 +55,7 @@ function Manifold(opt, manifold_){
 
   // ### parse `completion` props
   manifold.parse('completion', function (node, stem, completion){
-    if(util.type(stem).string){
-      node.completion = node.completion || [ ];
-      if(node.completion.indexOf(stem) < 0){
-        node.completion.push(stem);
-      }
-    }
+    completion = completion || stem;
     completion = this.boil('completion')(completion);
     if(!completion.length){  return null;  }
     node.completion = node.completion || [ ];
