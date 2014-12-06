@@ -12,7 +12,7 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "maleable hierarchies",
+  "description": "object manifold",
   "repository": "stringparser/node-manifold",
   "homepage": "https://github.com/stringparser/node-manifold",
   "bugs": {
@@ -29,9 +29,9 @@
     "jshint": "*"
   },
   "keywords": [
-    "extensible",
-    "manifold",
-    "hierarchy"
+    "maleable",
+    "object",
+    "manifold"
   ],
   "license": "MIT"
 }

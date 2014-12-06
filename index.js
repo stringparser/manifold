@@ -10,6 +10,13 @@ exports = module.exports = Manifold;
 
 // # Manifold constructor
 //
+// arguments
+//  - `opt` type `Object` optional, defaults to { name : '#rootNode' }
+//  - `manifold` type `Manifold` optional, defaults to  { }
+//
+// returns
+//  - manifold instance
+//
 function Manifold(opt, manifold_){
 
   if(!(this instanceof Manifold)){
@@ -37,13 +44,14 @@ function Manifold(opt, manifold_){
   manifold.parse('aliases', function (node, stems, aliases){
     aliases = manifold.boil('aliases', aliases);
     if(!aliases.length){  return null;  }
+
     var completion = [ ];
-    node.aliases = node.aliases || { };
+    this.cache.aliases = this.cache.aliases || { };
     aliases.forEach(function(alias){
       completion.push(alias);
-      node.aliases[alias] = stems.join(' ');
+      this.cache.aliases[alias] = stems.join(' ');
     });
-    this.parse('completion')(node, stems, completion);
+    this.parse('completion')(this.cache, stems, completion);
   });
 
   if(opt.completion === null){ return manifold; }
@@ -68,6 +76,15 @@ function Manifold(opt, manifold_){
 }
 
 // ## Manifold.boil
+// > premise: transform input to an array
+//
+// arguments
+//  - `prop` type `string`
+//  - `boiler` type `function` optional
+//
+// return
+//  - `boiler` function if arguments < 2
+//  - `this` otherwise
 //
 Manifold.prototype.boil = function(prop, boiler){
   if(arguments.length < 2){ return this.method.boil[prop] || util.boiler; }
@@ -94,6 +111,15 @@ Manifold.prototype.boil = function(prop, boiler){
 };
 
 // ## Manifold.parse
+// > premise: transform output to an object
+//
+// arguments
+// `prop` type `string`
+// `parser` type `function` optional
+//
+// return
+//  - `parser` function if arguments < 2
+//  - `this` otherwise
 //
 Manifold.prototype.parse = function(prop, parser){
   if(arguments.length < 2){ return this.method.parse[prop] || util.parser; }
@@ -121,6 +147,14 @@ Manifold.prototype.parse = function(prop, parser){
 
 // ## Manifold.set
 // > premise: set relaxed get fast
+//
+// ### arguments
+// `stems` type `string`
+// `boiler` type `function` optional
+//
+// ### return
+//  - `boiler` function if arguments < 2
+//  - `this` otherwise
 //
 Manifold.prototype.set = function(stems_, opts_){
   var stems = util.type(stems_);
