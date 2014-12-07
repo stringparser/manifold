@@ -12,13 +12,15 @@
 <p align="center">
   Object manifolds for node and the browser
 </p>
-<h3 align="center" style="border-bottom:0;">
-  <a href="#documentation">documentation</a>
-</h3>
 <p align="center">
   <a href="http://en.wikipedia.org/wiki/Lie_group">
     <img height=350 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/270px-E8Petrie.svg.png"/>
   </a>
+</p>
+
+<p align="center"
+   style="font-size: 14pt; font-weight: bold;">
+   <a href="#documentation">documentation</a>
 </p>
 
 ## usage
