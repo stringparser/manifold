@@ -18,11 +18,6 @@
   </a>
 </p>
 
-<p align="center"
-   style="font-size: 14pt; font-weight: bold;">
-   <a href="#documentation">documentation</a>
-</p>
-
 ## usage
 
 ```js
