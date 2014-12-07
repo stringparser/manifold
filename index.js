@@ -215,7 +215,7 @@ Manifold.prototype.set = function(stems, opts){
 Manifold.prototype.get = function(stems, opts){
   var boil = this.boil('#set');
   var stem, index = 0, found = this.cache;
-  opts = util.type(opts).plainObject || { };
+  opts = util.type(stems).plainObject || util.type(opts).plainObject || { };
 
   stems = boil(stems, opts);
   while((stem = stems[index])){
@@ -231,5 +231,9 @@ Manifold.prototype.get = function(stems, opts){
   // wipe, copy & return
   boil = index = stem = null;
   var node = this.parse('#get')(found, opts);
-  return opts.ref ? node : util.clone(node, true);
+  if(!opts.ref){
+    node = util.merge({}, node);
+    delete node.children; node = util.clone(node, true);
+  }
+  return node;
 };
