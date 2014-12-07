@@ -11,11 +11,11 @@
     "utils-type": "*"
   },
   "author": "Javier Carrillo",
-  "description": "object manifold",
-  "repository": "stringparser/node-manifold",
-  "homepage": "https://github.com/stringparser/node-manifold",
+  "description": "object manifolds",
+  "repository": "stringparser/manifold",
+  "homepage": "https://github.com/stringparser/manifold",
   "bugs": {
-    "url": "https://github.com/stringparser/node-manifold/issues"
+    "url": "https://github.com/stringparser/manifold/issues"
   },
   "scripts": {
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
