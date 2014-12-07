@@ -5,7 +5,7 @@ var rootName = 'nameTest';
 var app = new Manifold({ name: rootName });
 
 it('should have proper name', function(){
-  app('get page.data /url').get()
+  app.set('get page.data /url').get()
     .should.have.property('name', rootName);
 
   app.get('get')

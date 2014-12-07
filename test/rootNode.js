@@ -11,19 +11,19 @@ it('should have property name ', function(){
 
 function rootHandle(){ return; }
 it('should have rootHandle', function(){
-  app(rootHandle).get()
+  app.set(rootHandle).get()
     .should.have.property('handle', rootHandle);
 });
 
 var rootCompletion = ['one', 'two', 'three'];
 it('should have completion', function(){
-  app({completion: rootCompletion}).get()
+  app.set({completion: rootCompletion}).get()
     .should.have.property('completion', rootCompletion);
 });
 
 var aliases = ['a1', 'a2', 'a3'];
 it('should have aliases', function(){
-  app({ aliases : aliases }).get()
+  app.set({ aliases : aliases }).get()
     .should.have.property('aliases', {
       'a1': rootName,
       'a2': rootName,

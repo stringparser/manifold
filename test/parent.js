@@ -5,7 +5,7 @@ var rootName = 'parentTest';
 var app = new Manifold({ name: rootName });
 
 it('should have its parent', function(){
-  app('get page.data /url').get()
+  app.set('get page.data /url').get()
     .should.be.an.Object
     .and.not.have.property('parent');
 

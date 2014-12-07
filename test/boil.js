@@ -16,7 +16,7 @@ it('should change how stems are boiled', function(){
       }).join(' ').trim().split(/[ ]+/);
   });
 
-  app(manifold)
+  app.set(manifold)
     .boil('#set')(manifold)
     .forEach(function(stem, index, stems){
       app.get(stems.slice(0, index+1))

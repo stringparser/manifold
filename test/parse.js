@@ -13,7 +13,7 @@ it('should change how output gets parsed', function(){
     return node;
   });
 
-  app(manifold)
+  app.set(manifold)
     .get(manifold)
     .should.have.property('parsed', 'get page.#something /an/url');
 

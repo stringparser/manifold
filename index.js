@@ -23,25 +23,20 @@ function Manifold(opt, manifold_){
     return new Manifold(opt, manifold_);
   }
 
-  function manifold(stems, opts){
-    return manifold.set(stems, opts);
-  }
-  util.merge(manifold, this);
-
   opt = opt || { };
   if(!(manifold_ instanceof Manifold)){ manifold_ = { }; }
 
   // ## manifold.cache
-  manifold.cache = util.clone(manifold_.cache, true) || {
+  this.cache = util.clone(manifold_.cache, true) || {
     name: util.type(opt.name).string || '#rootNode',
     depth: 0
   };
 
   // ## manifold.method
-  manifold.method = {boil:{}, parse:{}, _: {boil:[], parse:[]}};
+  this.method = {boil:{}, parse:{}, _: {boil:[], parse:[]}};
 
   // ### parse `aliases` props
-  manifold.parse('aliases', function (node, stems, aliases){
+  this.parse('aliases', function (node, stems, aliases){
     aliases = this.boil('aliases')(aliases);
     if(!aliases.length){  return ;  }
     this.cache.aliases = this.cache.aliases || { };
@@ -51,10 +46,10 @@ function Manifold(opt, manifold_){
     this.parse('completion')(this.cache, stems, aliases);
   });
 
-  if(opt.completion === null){ return manifold; }
+  if(opt.completion === null){ return this; }
 
   // ### parse `completion` props
-  manifold.parse('completion', function (node, stem, completion){
+  this.parse('completion', function (node, stem, completion){
     completion = this.boil('completion')(completion || stem);
     if(!completion.length){  return ;  }
     node.completion = node.completion || [ ];
@@ -65,7 +60,7 @@ function Manifold(opt, manifold_){
     });
   });
 
-  return manifold;
+  return this;
 }
 
 // ## Manifold.boil

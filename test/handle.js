@@ -6,14 +6,14 @@ var app = new Manifold({ name: rootName });
 
 it('handle for the rootNode', function(){
   function rootHandle(){}
-  app(rootHandle).get()
+  app.set(rootHandle).get()
     .should.have.property('handle', rootHandle);
 });
 
 it('handle for a command', function(){
   function child(){}
 
-  app('get page.view /url', child)
+  app.set('get page.view /url', child)
     .get('get page.view')
     .should.not.have.property('handle', child);
 
@@ -24,7 +24,7 @@ it('handle for a command', function(){
 it('only last element should have handle', function(){
   function yourHandle(){}
 
-  app('get page.view /other/url', yourHandle);
+  app.set('get page.view /other/url', yourHandle);
 
   app.get('get')
     .should

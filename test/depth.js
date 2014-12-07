@@ -5,7 +5,7 @@ var rootName = 'depth';
 var app = new Manifold({ name: rootName });
 
 it('should have proper depth', function(){
-  app('get page.data /url').get()
+  app.set('get page.data /url').get()
     .should.have.property('depth', 0);
 
   app.get('get')
