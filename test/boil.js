@@ -4,7 +4,7 @@
 var rootName = 'boilTest';
 var app = new Manifold({ name: rootName });
 
-var manifold = 'get page.data /an/url';
+var manifold = 'get page.data /an/url/with.json';
 it('should change how stems are boiled', function(){
   // save default boiler
   var boil = app.boil('#set');
@@ -12,7 +12,7 @@ it('should change how stems are boiled', function(){
     if(!stems.length){ return []; }
     return stems
       .map(function(stem){
-        return stem.replace(/[^\.]\.+|\/[^\/]+/g, '$& ');
+        return stem.replace(/\/[^\/]+|[^\.]\.+/g, '$& ');
       }).join(' ').trim().split(/[ ]+/);
   });
 
