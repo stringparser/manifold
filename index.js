@@ -130,7 +130,7 @@ Manifold.prototype.parse = function(prop, parser){
   this.method.parse[prop] = function(/* arguments */){
     var parsed = parser.apply(self, arguments);
     if(!parsed){ return self; }
-    if(util.type(parsed).plainobject){ return parsed; }
+    if(util.type(parsed).plainObject){ return parsed; }
     throw new util.Error(
       ' While parsing `'+prop+'` \n'+
       ' parser.apply(self, arguments):\n'+
@@ -193,19 +193,15 @@ Manifold.prototype.set = function(stems, opts){
 
   // process props of last node from its parent using opts
   Object.keys(opts).forEach(function parseProps(prop){
-    var value = opts[prop];
+    var value = util.clone(opts[prop], true);
     if(value === void 0){ return ; }
     if(value === null){ return delete node[prop]; }
     if(parsers.indexOf(prop) > -1){ // parser gets the parent
       self.parse(prop)(parent, stems, value);
     } else if(util.type(value).plainObject){
       node[prop] = node[prop] || { };
-      util.merge(node[prop], util.clone(value));
-    } else {
-      node[prop] = util.type(value).array
-        ? value.slice()
-        : value;
-    }
+      util.merge(node[prop], value);
+    } else { node[prop] = value; }
   });
 
   // wipe & return
@@ -219,6 +215,7 @@ Manifold.prototype.set = function(stems, opts){
 Manifold.prototype.get = function(stems, opts){
   var boil = this.boil('#get');
   var stem, index = 0, found = this.cache;
+  opts = util.type(opts).plainObject || { };
 
   stems = boil(stems, opts);
   while((stem = stems[index])){
@@ -232,7 +229,7 @@ Manifold.prototype.get = function(stems, opts){
   }
 
   // wipe, copy & return
-  index = stem = null;
-  var shallow = util.merge({ }, found);
-  return this.parse('#get')(shallow, opts);
+  boil = index = stem = null;
+  var node = this.parse('#get')(found, opts);
+  return opts.ref ? node : util.clone(node, true);
 };
