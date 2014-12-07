@@ -174,7 +174,7 @@ I need it for [runtime](https://github.com/stringparser/runtime) module.
 
     $ npm install --save manifold
 
-### test
+### tests
 
     $ npm test
 
