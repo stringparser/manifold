@@ -12,16 +12,21 @@ it('should change how stems are boiled', function(){
     if(!stems.length){ return []; }
     return stems
       .map(function(stem){
-        return stem.replace(/\.[^\.]+|\/[^\/]+/g, ' $&');
+        return stem.replace(/[^\.]\.+|\/[^\/]+/g, '$& ');
       }).join(' ').trim().split(/[ ]+/);
   });
 
+  var index = 0;
   app.set(manifold)
     .boil('#set')(manifold)
-    .forEach(function(stem, index, stems){
+    .forEach(function(stem, ind, stems){
       app.get(stems.slice(0, index+1))
         .should.have.property('depth', index+1);
+      index++;
     });
+
+    index.should
+      .be.eql(app.boil('#set')(manifold).length);
 
   // restore default boiler
   app.boil('#set', boil);

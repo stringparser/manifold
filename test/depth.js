@@ -12,8 +12,8 @@ it('should have proper depth', function(){
     .should.have.property('depth', 1);
 
   app.get('get page.data')
-    .should.have.property('depth', 2);
+    .should.have.property('depth', 3);
 
   app.get('get page.data /url')
-    .should.have.property('depth', 3);
+    .should.have.property('depth', 4);
 });

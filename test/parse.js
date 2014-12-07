@@ -15,7 +15,7 @@ it('should change how output gets parsed', function(){
 
   app.set(manifold)
     .get(manifold)
-    .should.have.property('parsed', 'get page.#something /an/url');
+    .should.have.property('parsed', 'get page .#something /an /url');
 
   // restore default boiler
   app.parse('#get', parser);

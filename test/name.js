@@ -12,8 +12,8 @@ it('should have proper name', function(){
     .should.have.property('name', 'get');
 
   app.get('get page.data')
-    .should.have.property('name', 'get page.data');
+    .should.have.property('name', 'get page .data');
 
   app.get('get page.data /url')
-    .should.have.property('name', 'get page.data /url');
+    .should.have.property('name', 'get page .data /url');
 });

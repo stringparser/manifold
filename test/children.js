@@ -9,7 +9,7 @@ it('should create nested structures', function(){
     .should.have.property('children');
 
   app.get('get', {ref : true}).children
-    .should.have.property('page.widget');
+    .should.have.property('page');
 
   app.get('get page.widget', {ref : true}).children
     .should.have.property('/url');
