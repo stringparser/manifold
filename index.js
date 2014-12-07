@@ -194,11 +194,11 @@ Manifold.prototype.set = function(stems, opts){
   // process props of last node from its parent using opts
   Object.keys(opts).forEach(function parseProps(prop){
     var value = util.clone(opts[prop], true);
-    if(value === void 0){ return ; }
-    if(value === null){ return delete node[prop]; }
+    if(value === void 0 || value === null){ return ; }
     if(parsers.indexOf(prop) > -1){ // parser gets the parent
-      self.parse(prop)(parent, stems, value);
-    } else if(util.type(value).plainObject){
+      return self.parse(prop)(parent, stems, value);
+    }
+    if(util.type(value).plainObject){
       node[prop] = node[prop] || { };
       util.merge(node[prop], value);
     } else { node[prop] = value; }
