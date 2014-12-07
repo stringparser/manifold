@@ -9,7 +9,8 @@ it('should change how output gets parsed', function(){
   // save default boiler
   var parser = app.parse('#get');
   app.parse('#get', function (node){
-    node.parsed = node.name.replace('<name>', '#something');
+    node.parsed = (node.name || node.path)
+      .replace('<name>', '#something');
     return node;
   });
 

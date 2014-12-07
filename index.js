@@ -177,7 +177,7 @@ Manifold.prototype.set = function(stems, opts){
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
       node.children[stem] = {
-        name: stems.slice(0, index + 1).join(' '),
+        path: stems.slice(0, index + 1).join(' '),
         depth: node.depth + 1,
         parent: stems.slice(0, index).join(' ') || node.name
       };

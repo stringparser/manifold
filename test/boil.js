@@ -25,9 +25,7 @@ it('should change how stems are boiled', function(){
       index++;
     });
 
-    index.should
-      .be.eql(app.boil('#set')(manifold).length);
-
+  index.should.be.eql(6);
   // restore default boiler
   app.boil('#set', boil);
 });
