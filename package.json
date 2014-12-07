@@ -6,10 +6,9 @@
     "node": ">= 0.8.0"
   },
   "dependencies": {
-    "herro": "^0.1.48",
-    "utils-type": "*",
+    "lodash.clone": "^2.4.1",
     "utils-merge": "^1.0.0",
-    "lodash.clone": "^2.4.1"
+    "utils-type": "*"
   },
   "author": "Javier Carrillo",
   "description": "object manifold",

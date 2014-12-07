@@ -32,7 +32,7 @@ function Manifold(opt, manifold_){
   if(!(manifold_ instanceof Manifold)){ manifold_ = { }; }
 
   // ## manifold.cache
-  manifold.cache = manifold_.cache || {
+  manifold.cache = util.clone(manifold_.cache, true) || {
     name: util.type(opt.name).string || '#rootNode',
     depth: 0
   };
@@ -46,7 +46,7 @@ function Manifold(opt, manifold_){
     if(!aliases.length){  return ;  }
     this.cache.aliases = this.cache.aliases || { };
     aliases.forEach(function(alias){
-      this.cache.aliases[alias] = stems.join(' ');
+      this.cache.aliases[alias] = stems.join(' ') || this.cache.name;
     }, this);
     this.parse('completion')(this.cache, stems, aliases);
   });
@@ -187,18 +187,18 @@ Manifold.prototype.set = function(stems, opts){
     parent = node;
     node = node.children[stem];
     parsers.forEach(function(prop){
-      self.parse(prop)(parent, stem);
+      self.parse(prop)(parent, stem.substring(0));
     });
   });
 
   // process props of last node from its parent using opts
   Object.keys(opts).forEach(function parseProps(prop){
     var value = util.clone(opts[prop], true);
-    if(value === void 0 || value === null){ return ; }
+    if(value === void 0){ return ; }
+    if(value === null){ delete node[prop]; }
     if(parsers.indexOf(prop) > -1){ // parser gets the parent
-      return self.parse(prop)(parent, stems, value);
-    }
-    if(util.type(value).plainObject){
+      self.parse(prop)(parent, stems.slice(), value);
+    } else if(util.type(value).plainObject){
       node[prop] = node[prop] || { };
       util.merge(node[prop], value);
     } else { node[prop] = value; }
@@ -213,7 +213,7 @@ Manifold.prototype.set = function(stems, opts){
 // > premise: fallback to parent
 //
 Manifold.prototype.get = function(stems, opts){
-  var boil = this.boil('#get');
+  var boil = this.boil('#set');
   var stem, index = 0, found = this.cache;
   opts = util.type(opts).plainObject || { };
 

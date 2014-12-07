@@ -1,7 +1,7 @@
 /* jshint strict: false */
-/* global pack: true, util: true, should: true */
+/* global Manifold: true, util: true, should: true */
 
-pack = require('../');
+Manifold = require('../');
 should = require('should');
 util = require('./_util.js');
 

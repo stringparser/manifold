@@ -1,28 +1,19 @@
 /* jshint strict: false */
-/* global pack: true */
+/* global Manifold: true */
 
 var rootName = 'children';
-var app = new pack({ name: rootName });
+var app = new Manifold({ name: rootName });
 
 it('should create nested structures', function(){
+  app('get page.widget /url').get()
+    .should.have.property('children');
 
-  app('hello there you').get()
-    .should.be.an.Object
-    .and
-    .have.property('children');
+  app.get('get').children
+    .should.have.property('page.widget');
 
-  app.get('hello').children
-    .should.be.an.Object
-    .and
-    .have.property('there');
+  app.get('get page.widget').children
+    .should.have.property('/url');
 
-  app.get('hello there').children
-    .should.be.an.Object
-    .and
-    .have.property('you');
-
-  app.get('hello there you')
-    .should.be.an.Object
-    .and
-    .not.have.property('children');
+  app.get('get page.widget /url')
+    .should.not.have.property('children');
 });

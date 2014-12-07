@@ -1,8 +1,8 @@
 /* jshint strict: false */
-/* global pack: true */
+/* global Manifold: true */
 
 var rootName = 'handle';
-var app = new pack({ name: rootName });
+var app = new Manifold({ name: rootName });
 
 it('handle for the rootNode', function(){
   function rootHandle(){}
@@ -12,29 +12,29 @@ it('handle for the rootNode', function(){
 
 it('handle for a command', function(){
   function child(){}
-  app('hello child', child)
-    .get('hello').should
-    .not.have.property('handle', child);
 
-  app.get('hello child')
+  app('get page.view /url', child)
+    .get('get page.view')
+    .should.not.have.property('handle', child);
+
+  app.get('get page.view /url')
     .should.have.property('handle', child);
 });
 
 it('only last element should have handle', function(){
-
   function yourHandle(){}
 
-  app('hello there your', yourHandle);
+  app('get page.view /other/url', yourHandle);
 
-  app.get('hello')
+  app.get('get')
     .should
     .not.have.property('handle');
 
-  app.get('hello there')
+  app.get('get page.view')
     .should
     .not.have.property('handle');
 
-  app.get('hello there your')
+  app.get('get page.view /other/url')
     .should
     .have.property('handle', yourHandle);
 });

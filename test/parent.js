@@ -1,8 +1,8 @@
 /* jshint strict: false */
-/* global pack: true */
+/* global Manifold: true */
 
 var rootName = 'parentTest';
-var app = new pack({ name: rootName });
+var app = new Manifold({ name: rootName });
 
 it('should have its parent', function(){
   app('get page.data /url').get()
