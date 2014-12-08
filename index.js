@@ -41,12 +41,13 @@ function Manifold(opt, manifold_){
   manifold.method = {boil:{}, parse:{}, _: {boil:[], parse:[]}};
 
   // ### parse `aliases` props
-  manifold.parse('aliases', function (node, stems, aliases){
+  manifold.parse('aliases',
+  function parseAliases(node, stems, aliases){
     aliases = this.boil('aliases')(aliases);
     if(!aliases.length){  return ;  }
     this.cache.aliases = this.cache.aliases || { };
     aliases.forEach(function(alias){
-      this.cache.aliases[alias] = stems.join(' ') || this.cache.name;
+      this.cache.aliases[alias] = util.fold(stems.join(' ')) || this.cache.name;
     }, this);
     this.parse('completion')(this.cache, stems, aliases);
   });
@@ -54,7 +55,8 @@ function Manifold(opt, manifold_){
   if(opt.completion === null){ return manifold; }
 
   // ### parse `completion` props
-  manifold.parse('completion', function (node, stem, completion){
+  manifold.parse('completion',
+  function parseCompletion(node, stem, completion){
     completion = this.boil('completion')(completion || stem);
     if(!completion.length){  return ;  }
     node.completion = node.completion || [ ];
@@ -80,7 +82,7 @@ function Manifold(opt, manifold_){
 //  - `this` otherwise
 //
 Manifold.prototype.boil = function(prop, boiler){
-  if(arguments.length < 2){ return this.method.boil[prop] || util.boiler; }
+  if(arguments.length < 2){ return this.method.boil[prop] || util.boil; }
   if(typeof prop !== 'string'){
     prop = JSON.stringify(prop);
     throw new util.Error(
@@ -92,7 +94,7 @@ Manifold.prototype.boil = function(prop, boiler){
 
   var self = this;
   this.method.boil[prop] = function(stems, opts){
-    stems = util.boiler(stems, opts);
+    stems = util.boil(stems, opts);
     stems = boiler.call(self, stems, opts);
     if(!stems){ return [ ]; }
     if(util.type(stems).array){ return stems; }
@@ -116,7 +118,7 @@ Manifold.prototype.boil = function(prop, boiler){
 //  - `this` otherwise
 //
 Manifold.prototype.parse = function(prop, parser){
-  if(arguments.length < 2){ return this.method.parse[prop] || util.parser; }
+  if(arguments.length < 2){ return this.method.parse[prop] || util.parse; }
   if(typeof prop !== 'string'){
     prop = JSON.stringify(prop);
     throw new util.Error(
@@ -141,7 +143,7 @@ Manifold.prototype.parse = function(prop, parser){
 };
 
 // ## Manifold.set
-// > premise: set relaxed get fast
+// > premise: set relaxed, get fast
 //
 // ### arguments
 // `stems` type `string`
@@ -177,9 +179,10 @@ Manifold.prototype.set = function(stems, opts){
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
       node.children[stem] = {
-        path: stems.slice(0, index + 1).join(' '),
+        name: stem,
         depth: node.depth + 1,
-        parent: stems.slice(0, index).join(' ') || node.name
+        parent: util.fold(stems.slice(0, index).join(' '))
+          || node.name
       };
     }
     // keep parent to parse #set opts,
@@ -205,8 +208,9 @@ Manifold.prototype.set = function(stems, opts){
   });
 
   // wipe & return
-  stemsIs = optsIs = parsers = null;
-  return this.parse('#set')(this, opts);
+  var ret = this.parse('#set')(this, opts);
+  stems = opts = stemsIs = optsIs = parsers = null;
+  return ret;
 };
 
 // ## Manifold.get
@@ -215,7 +219,7 @@ Manifold.prototype.set = function(stems, opts){
 Manifold.prototype.get = function(stems, opts){
   var boil = this.boil('#set');
   var stem, index = 0, found = this.cache;
-  opts = util.type(stems).plainObject || util.type(opts).plainObject || { };
+  opts = util.type(opts || stems).plainObject || { };
 
   stems = boil(stems, opts);
   while((stem = stems[index])){

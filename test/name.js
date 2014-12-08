@@ -9,11 +9,11 @@ it('should have proper pathname', function(){
     .should.have.property('name', rootName);
 
   app.get('get')
-    .should.have.property('path', 'get');
+    .should.have.property('name', 'get');
 
   app.get('get page.data')
-    .should.have.property('path', 'get page .data');
+    .should.have.property('name', 'data');
 
   app.get('get page.data /url')
-    .should.have.property('path', 'get page .data /url');
+    .should.have.property('name', '/url');
 });

@@ -15,9 +15,9 @@ it('should have its parent', function(){
 
   app.get('get page.data')
     .should.be.an.Object
-    .and.have.property('parent', 'get page');
+    .and.have.property('parent', 'get page.');
 
   app.get('get page.data /url')
     .should.be.an.Object
-    .and.have.property('parent', 'get page .data');
+    .and.have.property('parent', 'get page.data');
 });

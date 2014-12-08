@@ -1,15 +1,20 @@
 /* jshint strict: false */
 /* global Manifold: true */
 
-var rootName = 'children';
+var rootName = 'childrenTest';
 var app = new Manifold({ name: rootName });
 
 it('should create nested structures', function(){
-  app.set('get page.widget /url').get({ref : true})
+  app('get page.widget /url');
+  
+  app.get({ref: true})
     .should.have.property('children');
 
   app.get('get', {ref : true}).children
-    .should.have.property('page');
+    .should.have.property('page.');
+
+  app.get('get page.', {ref: true}).children
+    .should.have.property('widget');
 
   app.get('get page.widget', {ref : true}).children
     .should.have.property('/url');

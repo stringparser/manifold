@@ -8,7 +8,7 @@ module.exports = {
     // first tests
     var first = [
       'rootNode.js',
-      'path.js',
+      'name.js',
       'depth.js',
       'parent.js',
       'handle.js'

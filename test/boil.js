@@ -8,13 +8,14 @@ var manifold = 'get page.data /an/url/with.json';
 it('should change how stems are boiled', function(){
   // save default boiler
   var boil = app.boil('#set');
-  app.boil('#set', function (stems){
+  function boiler(stems){
     if(!stems.length){ return []; }
     return stems
       .map(function(stem){
         return stem.replace(/\/[^\/]+|[^\.]\.+/g, '$& ');
       }).join(' ').trim().split(/[ ]+/);
-  });
+  }
+  app.boil('#set', boiler); app.boil('#get', boiler);
 
   var index = 0;
   app.set(manifold)
