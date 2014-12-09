@@ -17,7 +17,7 @@ it('should redirect to node for each alias', function(){
   aliases.forEach(function(alias){
     app.get(alias)
       .should.have.properties({
-        name : '/url',
+        path : 'get page.data /url',
         parent : 'get page.data'
       });
   });

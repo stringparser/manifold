@@ -101,15 +101,15 @@ Manifold.prototype.set = function(stems, opts){
 
   stems = this.boil('#set')(stems, opts);
   stems.forEach(function createChildren(stem, index){
+    var path;
     // ensure node existence
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
+      path = stems.slice(0, index).join(' ') || '';
       node.children[stem] = {
-        name: stem,
-        path: util.fold(stems.slice(0, index+1).join(' ')),
+        path: util.fold(path + ' ' + stem),
         depth: node.depth + 1,
-        parent: util.fold(stems.slice(0, index).join(' '))
-          || node.name
+        parent: util.fold(path) || self.cache.name
       };
     }
     // keep parent to parse #set opts,
@@ -231,7 +231,7 @@ Manifold.prototype.parse = function(prop, parser){
   this.method.parse[prop] = function(/* arguments */){
     var parsed = parser.apply(self, arguments);
     if(!parsed){ return self; }
-    if(util.type(parsed).plainObject){ return parsed; }
+    if(util.type(parsed).object){ return parsed; }
     throw new util.Error(
       ' While parsing `'+prop+'` \n'+
       ' parser.apply(self, arguments):\n'+
