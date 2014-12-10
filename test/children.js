@@ -5,8 +5,8 @@ var rootName = 'childrenTest';
 var app = new Manifold({ name: rootName });
 
 it('should create nested structures', function(){
-  app('get page.widget /url');
-  
+  app.set('get page.widget /url');
+
   app.get({ref: true})
     .should.have.property('children');
 

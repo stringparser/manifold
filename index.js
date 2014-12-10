@@ -2,6 +2,7 @@
 
 // ## dependencies
 //
+var Parth = require('parth');
 var util = require('./lib/util');
 
 // ## exports
@@ -17,29 +18,23 @@ exports = module.exports = Manifold;
 // returns
 //  - manifold instance
 //
-function Manifold(opt, manifold_){
+function Manifold(opt){
 
   if(!(this instanceof Manifold)){
-    return new Manifold(opt, manifold_);
+    return new Manifold(opt);
   }
-
-  function manifold(stems, opts){
-    return manifold.set(stems, opts);
-  }
-  util.merge(manifold, this);
 
   opt = opt || { };
-  if(!(manifold_ instanceof Manifold)){ manifold_ = { }; }
-  manifold.cache = util.clone(manifold_.cache, true) || {
+  this.cache = this.cache || {
     name: util.type(opt.name).string || '#rootNode',
     depth: 0
   };
 
   // ## manifold.method
-  manifold.method = {boil:{}, parse:{}, _: {boil:[], parse:[]}};
+  this.method = {boil:{}, parse:{}, _: {boil:[], parse:[]}};
 
   // ### parse `aliases` props
-  manifold.parse('aliases',
+  this.parse('aliases',
   function parseAliases(node, stems, aliases){
     aliases = this.boil('aliases')(aliases);
     if(!aliases.length){  return ;  }
@@ -50,10 +45,8 @@ function Manifold(opt, manifold_){
     this.parse('completion')(this.cache, stems, aliases);
   });
 
-  if(opt.completion === null){ return manifold; }
-
   // ### parse `completion` props
-  manifold.parse('completion',
+  this.parse('completion',
   function parseCompletion(node, stem, completion){
     completion = this.boil('completion')(completion || stem);
     if(!completion.length){  return ;  }
@@ -64,9 +57,8 @@ function Manifold(opt, manifold_){
       }
     });
   });
-
-  return manifold;
 }
+util.inherits(Manifold, Parth);
 
 // ## Manifold.set
 // > premise: set relaxed, get fast
