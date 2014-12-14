@@ -10,10 +10,7 @@ it('should change how stems are boiled', function(){
   var boil = app.boil('#set');
   function boiler(stems){
     if(!stems.length){ return []; }
-    return stems
-      .map(function(stem){
-        return stem.replace(/\/[^\/]+|[^\.]\.+/g, '$& ');
-      }).join(' ').trim().split(/[ ]+/);
+    return stems;
   }
   app.boil('#set', boiler); app.boil('#get', boiler);
 
