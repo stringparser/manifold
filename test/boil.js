@@ -4,17 +4,18 @@
 var rootName = 'boilTest';
 var app = new Manifold({ name: rootName });
 
-var manifold = 'get page.data /an/url/with.json';
 it('should change how stems are boiled', function(){
   // save default boiler
   var boil = app.boil('#set');
   function boiler(stems){
-    if(!stems.length){ return []; }
-    return stems;
+    if(Array.isArray(stems)){ stems = stems.join(' '); }
+    if(typeof stems !== 'string'){ return null; }
+    return stems.split(/[ ]+/);
   }
   app.boil('#set', boiler); app.boil('#get', boiler);
 
   var index = 0;
+  var manifold = 'get page.data /an/url/with.json';
   app.set(manifold)
     .boil('#set')(manifold)
     .forEach(function(stem, ind, stems){
@@ -23,7 +24,7 @@ it('should change how stems are boiled', function(){
       index++;
     });
 
-  index.should.be.eql(6);
+  index.should.be.eql(3);
   // restore default boiler
   app.boil('#set', boil);
 });
