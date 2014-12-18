@@ -22,3 +22,22 @@ it('should create nested structures', function(){
   app.get('get page.widget /url', {ref : true})
     .should.not.have.property('children');
 });
+
+it('should create nested structures with :params', function(){
+  app.set('(get|post|put|delete) page.:widget /:url');
+
+  app.get({ref: true})
+  .should.have.property('children');
+
+  app.get('get', {ref : true}).children
+  .should.have.property('page.');
+
+  app.get('post page.', {ref: true}).children
+  .should.have.property(':widget');
+
+  app.get('delete page.calendar', {ref : true}).children
+  .should.have.property('/:url');
+
+  app.get('put page.post /blog', {ref : true})
+  .should.not.have.property('children');
+});

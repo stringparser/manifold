@@ -39,6 +39,14 @@ function Manifold(opt){
   //
   this.boil('#get', parth.get);
   this.parse('#set', parth.set);
+  this.parse('#get', function(node, stems, opt){
+    if(!opt || opt.ref){ return node; }
+    return util.merge(node, {
+      url: this.parse('#get.url')(opt.url),
+      params: opt.params,
+      notFound: opt.notFound
+    });
+  });
 
   // ## sample parsers
   //
@@ -183,11 +191,10 @@ Manifold.prototype.set = function(stems, o){
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
       var regex = self.parse('#set')(stems.slice(0, index+1));
-      var parent = regex.path.replace(regex.argv[node.depth], '');
       node.children[stem] = {
         path: regex.path,
         depth: node.depth + 1,
-        parent: parent.trim() || self.store.name
+        parent: node.path || self.store.name
       };
     }
     // keep parent to parse #set o,
@@ -227,21 +234,23 @@ Manifold.prototype.set = function(stems, o){
 //  - `this` otherwise
 //
 Manifold.prototype.get = function(stems, o){
-  var boil = this.boil('#get');
-  var stem, index = 0, found = this.store;
   o = util.type(o || stems).plainObject || { };
+  var stem, index = 0, found = this.store;
+  var boil = this.boil('#get');
+
   stems = boil(stems, o);
   // aliases should be only on the rootNode
   if(found.aliases && found.aliases[o.path]){
     stems = boil(found.aliases[o.path], o);
   }
   // for the rest
-  while((stem = stems[index])){
+  while(index > -1){
+    stem = stems[index];
     if(found.children && found.children[stem]){
       index++; found = found.children[stem];
     } else { index = -1; }
   }
-  // wipe, copy & return
+
   var node;
   if(!o.ref){
     node = util.merge({}, found);
@@ -249,6 +258,5 @@ Manifold.prototype.get = function(stems, o){
     node = util.clone(node, true);
   }
 
-  index = stem = null;
   return this.parse('#get')(node || found, stems, o);
 };
