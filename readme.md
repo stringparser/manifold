@@ -22,13 +22,9 @@
 ## usage
 
 ```js
-var manifold = new require('manifold')();
-```
+var app = new require('manifold')({name: 'whatever'});
 
-_set_
-
-```js
-manifold
+app
   .set('get /:page/baby order.:beberage(\\d+\\w+) :when', function handle(){})
   .get('get /this/baby order.10beers now');
 // =>
@@ -52,11 +48,14 @@ manifold
 
 ````js
 var Manifold = require('manifold');
-var manifold = new Manifold(opt);
 ````
 The `Manifold` constructor
 
-In all the following when talking about `node` it refers `object` that a given path maps to. Being the `rootNode` the instance `store` property.
+In all the following `node` refers to the `object` mapping to a path.
+
+```js
+var manifold = new Manifold(opt);
+```
 
 arguments <br>
 `opt`: optional object with properties below
@@ -95,7 +94,7 @@ when `path` is:
 
  - an `object`
 
-   Turns into properties of the `rootNode`
+   Turns into properties of the [`rootNode`](#rootNode)
 
 when `opt` is:
  - a `function`
@@ -193,6 +192,14 @@ manifold
 
 19 passing (42ms)
 ```
+
+### Glossary
+
+ Names for things that are long to write
+
+#### rootNode
+
+ `manifold.store` property
 
 ### todo
 
