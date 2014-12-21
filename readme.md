@@ -134,7 +134,7 @@ and has extra properties:
 
 ### manifold.store
 
-The `manifold` instance `store`. Has 3 properties
+The `manifold` instance `store`. Has these properties
 - `name`: the `name` set on instantiation via `opt.name`
 - `cache`: all previously set paths live here
 - `regex`: object with one key per `depth`, each being an array.
@@ -187,7 +187,7 @@ manifold
   boil
     ✓ should change how stems are boiled
   parse
-    ✓ should change how output gets parsed 
+    ✓ should change how output gets parsed
 
 19 passing (42ms)
 ```
