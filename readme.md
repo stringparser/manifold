@@ -1,186 +1,208 @@
-# manifold [<img alt="progressed.io" src="http://progressed.io/bar/99" align="right"/>](https://github.com/fehmicansaglam/progressed.io)
+# manifold
 
 [<img alt="build" src="http://img.shields.io/travis/stringparser/manifold/master.svg?style=flat-square" align="left"/>](https://travis-ci.org/stringparser/manifold/builds)
 [<img alt="NPM version" src="http://img.shields.io/npm/v/manifold.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/manifold)
 <p align="center">
-  <a href="#install">install</a> |
-  <a href="#documentation">documentation</a> |
-  <a href="#why">why</a> |
-  <a href="#tests">tests</a>  
+  <a href="#documentation">documentation</a> -
+  <a href="#examples">examples</a> -
+  <a href="#install">install</a> -
+  <a href="#todo">todo</a> -
+  <a href="#why">not a real horse</a>
 </p>
 
-<p align="center">
-  Object manifolds for node and the browser
+<p align="center">Object manifolds</p>
 </p>
 <p align="center">
   <a href="http://en.wikipedia.org/wiki/Lie_group">
     <img height=350 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/270px-E8Petrie.svg.png"/>
   </a>
+  <p align="center">map between regular expressions and object keys<p>
 </p>
 
 ## usage
 
 ```js
-var manifold = new require('manifold')();
+var manifold = new require('manifold')(opt);
 ```
-#### object path
+
+_set_
 
 ```js
-manifold
-  .set('hello.:there(\\w+).:you')
-  .get('hello.awesome.human');
-// =>
-{ input: 'hello.awesome.human',
-  path: 'hello.:there(\\w+).:you',
-  regexp: /^hello\.(\w+)\.([^\. ]+)\.?/i,
-  argv: 'hello awesome human',
-  depth: 3,
-  params: { there: 'awesome', you: 'human' } }
+manifold.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
+{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+  url: '/:page(\\w+(?:end))/baby',
+  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
+  'user.', ':data(\\d+).', ':drink', ':when' ],
+  depth: 5
+}
 ```
-
-#### unix/url paths
+_get_
 
 ```js
-manifold
-  .set('/hello/:there/:you(\\w+)')
-  .get('/hello/awesome/human/?you=matter');
+var extra = { };
+manifold.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
 // =>
-{ input: '/hello/awesome/human/?you=matter',
-  path: '/hello/:there/:you',
-  query: 'you=matter',
-  regexp: /^\/hello\/([^\/ ]+)\/([^\/ ]+)\/?/i,
-  argv: 'hello awesome human',
-  depth: 3,
-  params: { there: 'awesome', you: 'human' } }
+{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+  notFound: false,
+  url: '/weekend/baby?query=string#hash',
+  path: 'get /weekend/baby user.10.beers now',
+  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
+  'user.', ':data(\\d+).', ':drink', ':when' ],
+  params: {
+    _: [ 'weekend', 10, 'beers', 'now' ],
+    page: 'weekend',
+    data: 10,
+    drink: 'beers',
+    when: 'now'
+  }
+}
 
-```
-
-#### fallbacks
-
-````js
-manifold
-  .get('/hello/there/you/awesome', { fallback : true });
- // =>
-{ input: '/hello/there/you/awesome',
-  path: '/hello/:there/:you',
-  regexp: /^\/hello\/([^\/ ]+)\/([^\/ ]+)\/?/i,
-  argv: 'hello there you awesome',
-  depth: 4,
-  fallback: true,
-  params: { there: 'there', you: 'you' } }
-````
-
-#### mixing them up
-
-```js
-manifold
-  .set(':method(get|put|delete|post) :model.data /hello/:one/:two?something')
-  .get('get page.data /hello/there/awesome.json?page=10');
+console.log(extra);
 // =>
-{ input: 'get page.data /hello/there/awesome.json?page=10',
-  path: ':method(get|put|delete|post) :model.data /hello/:one/:two',
-  query: 'page=10',
-  regexp: /^(get|put|delete|post)[ ]+([^\. ]+)\.data[ ]+\/hello\/([^\/ ]+)\/([^\/ ]+)\/?/i,
-  argv: 'get page data hello there awesome.json',
-  depth: 6,
-  params:
-   { method: 'get',
-     model: 'page',
-     one: 'there',
-     two: 'awesome.json' } }
-
-```
+{ notFound: false,
+  path: 'get /weekend/baby user.10.beers now',
+  url: '/weekend/baby?query=string#hash',
+  found: [ 'get /weekend/baby user.10.beers now' ],
+  depth: 5,
+  index: 4,
+  regex: { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
+    path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
+    argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
+    'user.', ':data(\\d+).', ':drink', ':when' ],
+    def: 2,
+    cust: 2
+    },
+    params: {
+      _: [ 'weekend', 10, 'beers', 'now' ],
+      page: 'weekend',
+      data: 10,
+      drink: 'beers',
+      when: 'now'
+    }
+  }
+  ```
 
 ## documentation
 
 ````js
 var manifold = require('manifold');
-var manifold = new manifold(/* your cache */)
 ````
 
-### var manifold = manifold([cache])
-
-Constructor of `manifolds`.
-
-Takes one optional argument. The `manifold` instance `cache` that will be created.
-
-### manifold(path, opts)
-
-Same as **path.set**.
-
-### manifold.set(path, opts)
-
-Set a new path. Chainable method.
-
-- `path`: string or array with the path to be set.
-- `opts`: object that will override internal regexes for `sep` or `params`.
-
-Any **word** statring with a colon, i.e. `:myParameter`, qualifies as parameter. After it a regular expression can be given to match a parameter. The regular expression **must start and end with parenthesis**.
-
-Examples of input
-```js
-manifold.set('myObject.:method.:property(\\w+)');
-manifold.set(':method:get|post|put|delete :page(\\w+?).data /page/:view(\\d)/some');
-manifold.set(
-  'Come to :here:Granada|Berlin|NY, ' +
-  'we have :something:paella|beer|awesomeness '+
-  'for :you(\\w+|everyone)');
-```
-
-### manifold.get(path, opts)
-
-Obtain a path previously saved with `manifold.set`
-
-- `path`: string or array with the path to be get.
-- `opts`: object that will override property defaults for internal `sep` and `params` regexes.
-
-Returns an object with the following properties
-
-- `input`: the input
-- `path`: the path that matches the imput
-- `query`: if path contains an url, will hold the query without '?'
-- `regexp`: the regexp used to match a path with `manifold.get`
-- `params`: the previously set `:paramaters` on the path
-- `argv`: an array of with all the non token strings of the input
-- `depth` : `argv.length`
-- `fallback`: whether or not the path has fallen back from another
-
-if the `path` is not defined, or doesn't match, `null` is returned
+`manifold` constructor. Takes no arguments.
 
 ```js
-manifold
-  .set(':number(\\d+) paths on fire')
-  .get('my paths on fire')
-// => null
+var manifold = new manifold();
 ```
 
-### manifold.cache
+### manifold.set(path)
 
-The `manifold` instance cache. Has 3 properties
+Set a string or array path
 
- - `masterRE` : array containing a regular expression for each depth.
- - `regexps`: a matrix of one column and one row for each path depth set.
- - `paths`: same as `regexps` but for the paths set.
+_arguments_
+- `path` type `string` or `array`
 
-### note mixed manifolds
+_return_
+- `regex` object with properties below
+- path: the input path sanitized
+- argv: normalized path vector
+- def: number of default regexes used to set
+- cust: number of custom regexes parsed for set
 
-Mixed paths are based on space being the "separator" of them. As long as space is used as a separator alls good.
+`path` can contain any number of parameters(regexes) in the form
+```js
+:param-label(\\regexp(?:here))
+```
+Any string matching the regular expression below qualifies as a parameter
+
+````js
+util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
+````
+
+[Go to regexpr](http://regexr.com/) and test it out.
+
+> Characters should be escaped i.e. `\\w+` <br>
+> For now, only one group per parameter is allowed
+
+### manifold.get(path[, o])
+
+Obtain a path matching what was previously set.
+
+_arguments_
+- `path` type `string` or `array`
+- `o` type `object` holding all extra information
+
+_return_
+- `null` for no matches
+- `regex` object maching the path given, with properties:
+- notFound: wether or not the it was a complete match of the path given
+- url: if any, the url contained within the `path` given
+- path: the `path` given as an input
+- argv: normalized path vector
+- params: object with a map between labels and the path. Numbers are parsed.
+
+> All matches partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
+
+### manifold.store
+
+The `manifold` instance `store`. Has 3 properties
+- `cache`: all previously set paths live here
+- `regex`: object with one key per `depth`, each being an array.
+- `masterRE` : array aggregating a regular expression for each `depth`.
+
+> When paths are set they are classified according to their `depth`
 
 ## why
 
-I need it for [runtime](https://github.com/stringparser/runtime) module.
+I need it for the [runtime](https://github.com/stringparser/runtime) module.
 
 ## install
 
-    $ npm install --save manifold
+$ npm install --save manifold
 
-### tests
+### examples
+Run the [`example.js`](example.js) file.
 
-    $ npm test
+### test
+
+$ npm test
+
+```
+➜  node-manifold (master) ✓ npm test
+manifold
+args
+✓ should handle string args for #set and #get
+✓ should handle array args for #set and #get
+✓ should handle array args for #set string for #set
+✓ should handle string args for #set array for #get
+unix-paths
+✓ should handle unix paths
+notFound
+✓ should handle urls and spaces
+✓ should handle urls spaces and object paths
+✓ should handle urls spaces and object paths
+object-paths
+✓ should handle object paths
+✓ should handle object paths with regexes
+sentences
+✓ should handle space separated strings
+combined
+✓ should handle urls and spaces
+✓ should handle urls spaces and object paths
+params
+✓ should handle urls and spaces
+✓ should handle urls spaces and object paths
+
+15 passing (19ms)
+```
 
 ### todo
 
- - [ ] admit a regexp as input
+- [ ] add support for regexp input
+
+### not a real horse
+
+The project name is an homage to the concept [manifold](http://en.wikipedia.org/wiki/Manifold). Beautiful creatures of Physic and Math thought. BUT, in any moment this can be considered the real thing. That is this is not a manifold. I wish!
 
 ### license
 

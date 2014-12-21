@@ -23,16 +23,16 @@ it('should create nested structures', function(){
     .should.not.have.property('children');
 });
 
-it('should create nested structures with :params', function(){
+it('should be able to create nested using :params structure', function(){
   app.set('(get|post|put|delete) page.:widget /:url');
 
   app.get({ref: true})
   .should.have.property('children');
 
-  app.get('get', {ref : true}).children
-  .should.have.property('page.');
+  app.get('post', {ref : true}).children
 
-  app.get('post page.', {ref: true}).children
+    .should.have.property('page.');
+  app.get('put page.', {ref: true}).children
   .should.have.property(':widget');
 
   app.get('delete page.calendar', {ref : true}).children

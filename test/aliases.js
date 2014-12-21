@@ -31,3 +31,11 @@ it('should have its parent via aliases', function(){
       .should.have.property('parent', 'get page.data');
   });
 });
+
+it('should work with params', function(){
+  app.set(['get page.:data(\\d+) /url'].concat(aliases));
+  aliases.forEach(function(alias){
+    app.get(alias)
+    .should.have.property('parent', 'get page.:data(\\d+)');
+  });
+});

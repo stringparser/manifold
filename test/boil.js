@@ -7,10 +7,9 @@ var app = new Manifold({ name: rootName });
 it('should change how stems are boiled', function(){
   // save default boiler
   var boil = app.boil('#set');
-  function boiler(stems){
-    if(Array.isArray(stems)){ stems = stems.join(' '); }
-    if(typeof stems !== 'string'){ return null; }
-    return stems.split(/[ ]+/);
+  function boiler(stems, o){
+    boil(stems, (o = o || { }));
+    return o.path.split(/[ ]+/);
   }
   app.boil('#set', boiler); app.boil('#get', boiler);
 
@@ -19,8 +18,8 @@ it('should change how stems are boiled', function(){
   app.set(manifold)
     .boil('#set')(manifold)
     .forEach(function(stem, ind, stems){
-      app.get(stems.slice(0, index+1))
-        .should.have.property('depth', index+1);
+      app.get(stems.slice(0, ind+1))
+        .should.have.property('depth', ind+1);
       index++;
     });
 

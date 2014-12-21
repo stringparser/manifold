@@ -25,11 +25,11 @@ function Manifold(opt){
 
   opt = opt || { };
 
-  var parth = new util.Parth();
+  util.Parth.call(this);
 
   util.merge(this, {
     method: { boil:{ }, parse:{ } },
-    store: util.merge(parth.store, {
+    store: util.merge(this.store, {
       name: util.type(opt.name).string || '#rootNode',
       depth: 0
     })
@@ -37,8 +37,9 @@ function Manifold(opt){
 
   // ## main boilers and parsers
   //
-  this.boil('#get', parth.get);
-  this.parse('#set', parth.set);
+
+  this.boil('#get', util.Parth.prototype.get);
+  this.parse('#set', util.Parth.prototype.set);
   this.parse('#get', function(node, stems, opt){
     if(!opt || opt.ref){ return node; }
     return util.merge(node, {
@@ -76,6 +77,7 @@ function Manifold(opt){
   }
 
 }
+util.inherits(Manifold, util.Parth);
 
 // ## Manifold.boil
 // > premise: transform input to an array
@@ -190,9 +192,8 @@ Manifold.prototype.set = function(stems, o){
     // ensure node existence
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
-      var regex = self.parse('#set')(stems.slice(0, index+1));
       node.children[stem] = {
-        path: regex.path,
+        path: self.parse('#set')(stems.slice(0, index+1)).path,
         depth: node.depth + 1,
         parent: node.path || self.store.name
       };
@@ -221,38 +222,41 @@ Manifold.prototype.set = function(stems, o){
   return this;
 };
 
-// ## Manifold.boil
-// > premise: transform input to an array
-// > have all extra information on opts
+// ## Manifold.get(stems[, o])
+// > take a string or array, return the matching object
 //
 // arguments
-//  - `prop` type `string`
-//  - `boiler` type `function` optional
+//  - `stems` type `string` or `array`
+//  - `o` type `object` optional holding all extra information
 //
-// return
-//  - `boiler` function if arguments < 2
-//  - `this` otherwise
+// return node `found`
+// --
+// api.public
+// --
 //
 Manifold.prototype.get = function(stems, o){
   o = util.type(o || stems).plainObject || { };
   var stem, index = 0, found = this.store;
   var boil = this.boil('#get');
 
+  // aliases should only be only at the rootNode
   stems = boil(stems, o);
-  // aliases should be only on the rootNode
   if(found.aliases && found.aliases[o.path]){
-    stems = boil(found.aliases[o.path], o);
+    o.path = found.aliases[o.path];
+    if(found.cache[o.path]){
+      stems = found.cache[o.path].regex.argv;
+    } else { stems = boil(o.path, o); }
   }
-  // for the rest
-  while(index > -1){
+
+  while(index > -1){ // fallback always
     stem = stems[index];
     if(found.children && found.children[stem]){
-      index++; found = found.children[stem];
+      found = found.children[stem]; index++;
     } else { index = -1; }
   }
 
   var node;
-  if(!o.ref){
+  if(!o.ref){ // pass reference?
     node = util.merge({}, found);
     delete node.children;
     node = util.clone(node, true);
