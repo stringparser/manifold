@@ -7,9 +7,9 @@
   },
   "dependencies": {
     "lodash.clone": "^2.4.1",
-    "parth": "^1.3.5",
     "utils-merge": "^1.0.0",
-    "utils-type": "*"
+    "utils-type": "*",
+    "parth": "^1.3.5"
   },
   "author": "Javier Carrillo",
   "description": "object manifolds",

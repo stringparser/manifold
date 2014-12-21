@@ -3,9 +3,9 @@
 [<img alt="build" src="http://img.shields.io/travis/stringparser/manifold/master.svg?style=flat-square" align="left"/>](https://travis-ci.org/stringparser/manifold/builds)
 [<img alt="NPM version" src="http://img.shields.io/npm/v/manifold.svg?style=flat-square" align="right"/>](http://www.npmjs.org/package/manifold)
 <p align="center">
+  <a href="#install">install</a> -
   <a href="#documentation">documentation</a> -
   <a href="#examples">examples</a> -
-  <a href="#install">install</a> -
   <a href="#todo">todo</a> -
   <a href="#why">not a real horse</a>
 </p>
@@ -16,136 +16,126 @@
   <a href="http://en.wikipedia.org/wiki/Lie_group">
     <img height=350 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/270px-E8Petrie.svg.png"/>
   </a>
-  <p align="center">map between regular expressions and object keys<p>
+  <p align="center">map strings via regular expressions to objects<p>
 </p>
 
 ## usage
 
 ```js
-var manifold = new require('manifold')(opt);
+var manifold = new require('manifold')();
 ```
 
 _set_
 
 ```js
-manifold.set('get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when') // =>
-{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-  url: '/:page(\\w+(?:end))/baby',
-  path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
-  'user.', ':data(\\d+).', ':drink', ':when' ],
-  depth: 5
+manifold
+  .set('get /:page/baby order.:beberage(\\d+\\w+) :when', function handle(){})
+  .get('get /this/baby order.10beers now');
+// =>
+{
+  path: 'get /:page/baby order.:beberage(\\d+\\w+) :when',
+  depth: 6,
+  parent: 'get /:page/baby order.:beberage(\\d+\\w+)',
+  handle: [Function: handle],
+  url: '/this/baby',
+  params: {
+    _: [ 'this', '10beers', 'now' ],
+    page: 'this',
+    beberage: '10beers',
+    when: 'now'
+  },
+  notFound: false
 }
 ```
-_get_
-
-```js
-var extra = { };
-manifold.get('get /weekend/baby/?query=string#hash user.10.beers now', extra)
-// =>
-{ /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-  notFound: false,
-  url: '/weekend/baby?query=string#hash',
-  path: 'get /weekend/baby user.10.beers now',
-  argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
-  'user.', ':data(\\d+).', ':drink', ':when' ],
-  params: {
-    _: [ 'weekend', 10, 'beers', 'now' ],
-    page: 'weekend',
-    data: 10,
-    drink: 'beers',
-    when: 'now'
-  }
-}
-
-console.log(extra);
-// =>
-{ notFound: false,
-  path: 'get /weekend/baby user.10.beers now',
-  url: '/weekend/baby?query=string#hash',
-  found: [ 'get /weekend/baby user.10.beers now' ],
-  depth: 5,
-  index: 4,
-  regex: { /^get \/(\w+(?:end))\/baby\/?(?:[^ ])? user\.(\d+)\.([^\. ]+) ([^\. ]+)/i
-    path: 'get /:page(\\w+(?:end))/baby user.:data(\\d+).:drink :when',
-    argv:  [ 'get', '/:page(\\w+(?:end))', '/baby',
-    'user.', ':data(\\d+).', ':drink', ':when' ],
-    def: 2,
-    cust: 2
-    },
-    params: {
-      _: [ 'weekend', 10, 'beers', 'now' ],
-      page: 'weekend',
-      data: 10,
-      drink: 'beers',
-      when: 'now'
-    }
-  }
-  ```
 
 ## documentation
 
 ````js
-var manifold = require('manifold');
+var Manifold = require('manifold');
+var manifold = new Manifold(opt);
 ````
+The `Manifold` constructor
 
-`manifold` constructor. Takes no arguments.
+In all the following when talking about `node` it refers `object` that a given path maps to. Being the `rootNode` the instance `store` property.
 
-```js
-var manifold = new manifold();
-```
+arguments <br>
+`opt`: optional object with properties below
+  - `name`: `string` label for the `rootNode` object.
 
-### manifold.set(path)
+### manifold.set([path,] opt)
 
-Set a string or array path
+Set object properties via a string path that may or may not contain parameters.
 
 _arguments_
-- `path` type `string` or `array`
+- `path` type `string`, `array`, `plainObject` or `function`
+- `opt` type `function` or `plainObject`
 
 _return_
-- `regex` object with properties below
-- path: the input path sanitized
-- argv: normalized path vector
-- def: number of default regexes used to set
-- cust: number of custom regexes parsed for set
+- `this`, the manifold instance
 
-`path` can contain any number of parameters(regexes) in the form
-```js
-:param-label(\\regexp(?:here))
-```
-Any string matching the regular expression below qualifies as a parameter
+when `path` is:
+ - a `string` it can contain any number of parameters(regexes) in the form
+  ```js
+  :param-label(\\regexp(?:here))
+  ```
+  Any string matching the regular expression below qualifies as a parameter
 
-````js
-util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
-````
+  ````js
+  util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
+  ````
+  [Go to regexpr](http://regexr.com/) and test it out.
 
-[Go to regexpr](http://regexr.com/) and test it out.
+ - an `array`
 
-> Characters should be escaped i.e. `\\w+` <br>
+  The first element is treated as a `string` the rest as its aliases.
+
+ - a `function`
+
+   Turns into the `node.handle` for the `rootNode`
+
+ - an `object`
+
+   Turns into properties of the `rootNode`
+
+when `opt` is:
+ - a `function`
+
+   It turns into the `node.handle` for that object's path
+
+ - an `object`
+
+   Turns into the properties of the corresponding `node` for that `path`
+
+
+Properties to be attached to the `node` object of that `path` can be parsed with [`manifold.parse('property')`](##manifoldparsepath o).
+
+> Characters should be escaped i.e. `\\`w+ <br>
 > For now, only one group per parameter is allowed
 
 ### manifold.get(path[, o])
 
-Obtain a path matching what was previously set.
+Obtain an object matching a path set previously
 
 _arguments_
 - `path` type `string` or `array`
-- `o` type `object` holding all extra information
+- `o` type `object`
 
 _return_
-- `null` for no matches
-- `regex` object maching the path given, with properties:
-- notFound: wether or not the it was a complete match of the path given
-- url: if any, the url contained within the `path` given
-- path: the `path` given as an input
-- argv: normalized path vector
-- params: object with a map between labels and the path. Numbers are parsed.
+ - `clone` of the `node` matching the path with extra properties.
 
-> All matches partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
+The returned `node` has no `children` property (to avoid deep cloning)
+and has extra properties:
+ - url: if present, the url contained within the path including hash and query
+ - params: parsed params for the path
+
+> When `path` is `string` or `array` the corresponding node for that path is found taking into account, if previously set, its aliases.
+
+> All matches are partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
 
 ### manifold.store
 
 The `manifold` instance `store`. Has 3 properties
+- `name`: the `name` set on instantiation via `opt.name`
 - `cache`: all previously set paths live here
 - `regex`: object with one key per `depth`, each being an array.
 - `masterRE` : array aggregating a regular expression for each `depth`.
@@ -168,32 +158,38 @@ Run the [`example.js`](example.js) file.
 $ npm test
 
 ```
-➜  node-manifold (master) ✓ npm test
+➜  manifold (master) ✓ npm test
 manifold
-args
-✓ should handle string args for #set and #get
-✓ should handle array args for #set and #get
-✓ should handle array args for #set string for #set
-✓ should handle string args for #set array for #get
-unix-paths
-✓ should handle unix paths
-notFound
-✓ should handle urls and spaces
-✓ should handle urls spaces and object paths
-✓ should handle urls spaces and object paths
-object-paths
-✓ should handle object paths
-✓ should handle object paths with regexes
-sentences
-✓ should handle space separated strings
-combined
-✓ should handle urls and spaces
-✓ should handle urls spaces and object paths
-params
-✓ should handle urls and spaces
-✓ should handle urls spaces and object paths
+  rootNode
+    ✓ should have property name  
+    ✓ should have rootHandle
+    ✓ should have completion
+    ✓ should have aliases
+  path
+    ✓ should have proper pathname
+  depth
+    ✓ should have proper depth
+    ✓ should have proper depth when using :params
+  parent
+    ✓ should have its parent
+    ✓ should have its parent
+  handle
+    ✓ handle for the rootNode
+    ✓ handle for a command
+    ✓ only last element should have handle
+  aliases
+    ✓ should redirect to node for each alias
+    ✓ should have its parent via aliases
+    ✓ should work with params
+  children
+    ✓ should create nested structures
+    ✓ should be able to create nested using :params structure
+  boil
+    ✓ should change how stems are boiled
+  parse
+    ✓ should change how output gets parsed 
 
-15 passing (19ms)
+19 passing (42ms)
 ```
 
 ### todo
