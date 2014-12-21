@@ -145,7 +145,7 @@ The `manifold` instance `store`. Has these properties
 
 I need it for the [runtime](https://github.com/stringparser/runtime) module.
 
-The project name is an homage to the concept [manifold](http://en.wikipedia.org/wiki/Manifold). Beautiful creatures of Physics and Math thought. BUT, in any moment this can be considered the real thing. That is this is not a manifold. I wish!
+The project name is an homage to the concept of  [manifold](http://en.wikipedia.org/wiki/Manifold). Beautiful creature of Math and Physics thought. BUT, this can't be considered the real thing. That is: this is not a manifold. I'd wish!
 
 ## install
 
