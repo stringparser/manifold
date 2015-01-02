@@ -40,14 +40,6 @@ function Manifold(opt){
 
   this.boil('#get', util.Parth.prototype.get);
   this.parse('#set', util.Parth.prototype.set);
-  this.parse('#get', function(node, stems, opt){
-    if(!opt || opt.ref){ return node; }
-    return util.merge(node, {
-      url: this.parse('#get.url')(opt.url),
-      params: opt.params,
-      notFound: opt.notFound
-    });
-  });
 
   // ## sample parsers
   //
@@ -235,7 +227,7 @@ Manifold.prototype.set = function(stems, o){
 // --
 //
 Manifold.prototype.get = function(stems, o){
-  o = util.type(o || stems).plainObject || { };
+  o = util.type(o || stems).object || { };
   var stem, index = 0, found = this.store;
   var boil = this.boil('#get');
 

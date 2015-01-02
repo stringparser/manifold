@@ -6,10 +6,11 @@
     "node": ">= 0.8.0"
   },
   "dependencies": {
+    "inherits": "^2.0.1",
     "lodash.clone": "^2.4.1",
+    "parth": "^1.x.x",
     "utils-merge": "^1.0.0",
-    "utils-type": "*",
-    "parth": "^1.x.x"
+    "utils-type": "*"
   },
   "author": "Javier Carrillo",
   "description": "object manifolds",
