@@ -29,13 +29,13 @@ it('should be able to create nested using :params structure', function(){
   app.get({ref: true})
   .should.have.property('children');
 
-  app.get('post', {ref : true}).children
-
+  app.get('(get|post|put|delete)', {ref : true}).children
     .should.have.property('page.');
-  app.get('put page.', {ref: true}).children
+
+  app.get('(get|post|put|delete) page.', {ref: true}).children
   .should.have.property(':widget');
 
-  app.get('delete page.calendar', {ref : true}).children
+  app.get('(get|post|put|delete) page.:widget', {ref : true}).children
   .should.have.property('/:url');
 
   app.get('put page.post /blog', {ref : true})

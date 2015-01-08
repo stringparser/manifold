@@ -20,7 +20,6 @@ module.exports = {
     ];
     // last
     var last = [
-      'boil.js',
       'parse.js'
     ];
 

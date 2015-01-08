@@ -4,20 +4,22 @@
 var rootName = 'parseTest';
 var app = new Manifold({ name: rootName });
 
-var manifold = 'get page.<name> /an/url';
-it('should change how output gets parsed', function(){
+it('should provide general purpose parser', function(){
   // save default boiler
-  var parser = app.parse('#get');
-  app.parse('#get', function (node){
-    if(!node.parent){ return ; }
-    node.parsed = node.parent.replace('<name>', '#something');
-    return node;
+  app.parse('#number', function(arg){
+    return arg + 1;
   });
 
-  app.set(manifold)
-    .get(manifold)
-    .should.have.property('parsed', 'get page.#something /an');
+  app.parse('#number')(2).should.be.eql(3);
+});
 
-  // restore default boiler
-  app.parse('#get', parser);
+it('should be able to parse node properties', function(){
+  // save default boiler
+  app.parse('property', function(parent, stems, arg){
+    var lastChild = stems[stems.length-1];
+    parent.children[lastChild].property = arg + 1;
+  });
+
+  app.set('path', { property: 2 });
+  app.get('path').should.have.property('property', 3);
 });

@@ -46,7 +46,7 @@ function Manifold(o){
       return this.parse.prop[name] || util.parse;
     }
 
-    if(typeof prop !== 'string' && typeof boiler !== 'function'){
+    if(typeof prop !== 'string' && typeof parser !== 'function'){
       name = JSON.stringify(name);
       throw new util.Error(
         ' While setting `'+name+'` at this.parse(prop[, parser]):\n' +
@@ -84,7 +84,10 @@ Manifold.prototype.set = function(stems, o){
   o = oIs.plainObject || stemsIs.plainObject || { };
   o.handle = stemsIs.function || oIs.function;
 
-  stems = this.parth.set(stems).argv;
+  if(stemsIs.array || stemsIs.string){
+    stems = this.parth.set(stems).argv;
+  } else { stems = []; }
+
   var node = this.store, parent = this.store;
   stems.forEach(function createChildren(stem, index){
     // ensure node existence
@@ -132,7 +135,9 @@ Manifold.prototype.get = function(stems, o){
   o = util.type(o || stems).object || { };
   var stem, index = 0, found = this.store;
 
-  stems = (this.parth.get(stems, o) || o).argv;
+  if(util.type(stems).match(/string|array/)){
+    stems = (this.parth.get(stems, o) || o).argv;
+  } else { index = -1; }
 
   while(index > -1){ // always failback
     stem = stems[index];

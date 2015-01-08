@@ -20,18 +20,3 @@ it('should have completion', function(){
   app.set({completion: rootCompletion}).get()
     .should.have.property('completion', rootCompletion);
 });
-
-var aliases = ['a1', 'a2', 'a3'];
-it('should have aliases', function(){
-  app.set({ aliases : aliases }).get()
-    .should.have.property('aliases', {
-      'a1': rootName,
-      'a2': rootName,
-      'a3': rootName
-    });
-
-  aliases.forEach(function(alias){
-    app.get(alias)
-      .should.have.property('name', rootName);
-  });
-});
