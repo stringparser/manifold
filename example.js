@@ -5,3 +5,4 @@ var res = app
   .get('get /this/baby order.10beers now');
 
 console.log(res);
+console.log(app.get(res.parent));
