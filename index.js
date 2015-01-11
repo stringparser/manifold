@@ -132,13 +132,17 @@ Manifold.prototype.set = function(stems, o){
 // --
 //
 Manifold.prototype.get = function(stems, o){
-  o = util.type(o || stems).object || { };
-  var stem, index = 0, found = this.store;
+  var stem, index, found;
+  o = o || util.type(stems).plainObject || { };
 
-  if(util.type(stems).match(/string|array/)){
-    stems = (this.parth.get(stems, o) || o).argv;
+  index = 0;
+  stems = this.parth.get(stems, o);
+
+  if(stems || o.argv){
+    stems = (stems || o).argv;
   } else { index = -1; }
 
+  found = this.store;
   while(index > -1){ // always failback
     stem = stems[index];
     if(found.children && found.children[stem]){
@@ -146,12 +150,11 @@ Manifold.prototype.get = function(stems, o){
     } else { index = -1; }
   }
 
-  var node;
-  if(!o.ref){ // pass reference?
-    node = util.merge({}, found);
-    delete node.children;
-    node = util.clone(util.merge(o, node), true);
-  }
+  if(o.ref){ return found; }
 
-  return node || found;
+  stem = o.path;
+  util.merge(o, found);
+  delete o.children;
+  o.path = stem;
+  return util.clone(o, true);
 };
