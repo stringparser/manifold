@@ -94,7 +94,7 @@ Manifold.prototype.set = function(stems, o){
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
       node.children[stem] = {
-        path: util.fold(stems.slice(0, index+1).join(' ')),
+        path: util.fold(stems.slice(0, index+1)),
         depth: node.depth + 1,
         parent: node.path || this.store.name
       };
