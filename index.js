@@ -133,7 +133,7 @@ Manifold.prototype.set = function(stems, opt){
 //
 Manifold.prototype.get = function(stems, opt){
   var stem, index, found;
-  opt = util.type(opt || stems).plainObject || { };
+  opt = opt || util.type(stems).plainObject || { };
 
   index = 0;
   stems = this.parth.get(stems, opt);
