@@ -106,10 +106,8 @@ Manifold.prototype.set = function(stems, opt){
     if(value === void 0){ return ; }
     if(this.parse.prop[name]){
       return this.parse(name)(parent, stems.slice(), value);
-    }
-
-    node[name] = node[name] || { };
-    if(util.type(value).plainObject){
+    } else if(util.type(value).plainObject){
+      node[name] = node[name] || { };
       util.merge(node[name], value);
     } else { node[name] = value; }
 
