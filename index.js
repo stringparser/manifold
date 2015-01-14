@@ -136,9 +136,10 @@ Manifold.prototype.get = function(stems, opt){
   opt = opt || util.type(stems).plainObject || { };
 
   index = 0;
-  stems = this.parth.get(stems, opt) || opt;
-  if(!stems.argv){ index = -1; }
-  stems = stems.argv;
+  stems = this.parth.get(stems, opt);
+  if(!stems && !opt.argv){ index = -1; }
+  stems = (stems || opt).argv;
+
 
   found = this.store;
   while(index > -1){ // always failback
