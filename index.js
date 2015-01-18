@@ -91,9 +91,9 @@ Manifold.prototype.set = function(stems, opt){
     if(!node.children){ node.children = { }; }
     if(!node.children[stem]){
       node.children[stem] = {
-        path: util.fold((node.path || '') + ' ' + stem),
+        stem: util.fold((node.stem || '') + ' ' + stem),
         depth: node.depth + 1,
-        parent: node.path || this.store.name
+        parent: node.stem || this.store.name
       };
     }
     parent = node;
@@ -138,7 +138,6 @@ Manifold.prototype.get = function(stems, opt){
   if(!stems && !opt.argv){ index = -1; }
   stems = (stems || opt).argv;
 
-
   found = this.store;
   while(index > -1){ // always failback
     stem = stems[index];
@@ -148,7 +147,6 @@ Manifold.prototype.get = function(stems, opt){
   }
 
   if(opt.ref){ return found; }
-
   util.merge(opt, found);
   delete opt.children;
   return util.clone(opt, true);
