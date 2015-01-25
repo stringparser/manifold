@@ -25,131 +25,110 @@
 var app = new require('manifold')({name: 'whatever'});
 
 app
-  .set('get /:page/baby order.:beberage(\\d+\\w+) :when', function handle(){})
-  .get('get /this/baby order.10beers now');
+  .set('go /:place order.:beberage(\\d+\\w+)', function handleIt(){})
+  .get('go /haveFun/#hash?query=here order.10beers now');
 // =>
 {
-  path: 'get /:page/baby order.:beberage(\\d+\\w+) :when',
-  depth: 6,
-  parent: 'get /:page/baby order.:beberage(\\d+\\w+)',
-  handle: [Function: handle],
-  url: '/this/baby',
-  params: {
-    _: [ 'this', '10beers', 'now' ],
-    page: 'this',
-    beberage: '10beers',
-    when: 'now'
-  },
-  notFound: false
+  notFound: false,
+  url: '/haveFun/#hash?query=here',
+  path: 'go /haveFun order.10beers now',
+  argv: [ 'go', '/haveFun', 'order.', '10beers' ],
+  depth: 4,
+  match: 'go /haveFun order.10beers',
+  params:
+  { _: [ 'place', 'beberage' ],
+  place: 'haveFun',
+  beberage: '10beers' },
+  stem: 'go /:place order.:beberage(\\d+\\w+)',
+  parent: 'go /:place order.',
+  handle: [Function: handleIt]
 }
 ```
 
 ## documentation
 
 ````js
-var Manifold = require('manifold');
+var Manifold = require('manifold'); // constructor
+var manifold = new Manifold({name: 'stuff'});
 ````
-The `Manifold` constructor
 
-In all the following `node` refers to the `object` mapping to a path.
+arguments
+ - `opt` type `object` optional object with properties below
 
-```js
-var manifold = new Manifold(opt);
-```
+`opt` properties
+ - `name`: `string` label for the `rootNode` object
 
-arguments <br>
-`opt`: optional object with properties below
-  - `name`: `string` label for the `rootNode` object.
+> In all the following `node` refers to the `object` mapping to a path.
 
 ### manifold.set([path,] opt)
 
-Set object properties via a string path that may or may not contain parameters.
+Set object properties string paths with or without parameters
 
 _arguments_
-- `path` type `string`, `array`, `plainObject` or `function`
+- `path` type `string` optional
 - `opt` type `function` or `plainObject`
 
 _return_
-- `this`, the manifold instance
+- `this` the manifold instance
 
-when `path` is:
- - a `string` it can contain any number of parameters(regexes) in the form
+<br>
+when _path_ is:
+ - `string`: represents a path in the format below
+ - `undefined`: all `opt` properties go to the `rootNode`
   ```js
-  :param-label(\\regexp(?:here))
+  :param-label(possible\\regexp(?:here))
   ```
-  Any string matching the regular expression below qualifies as a parameter
+  strings matching the `regex` below qualify as a parameter
 
   ````js
   util.paramRE = /(^|\W)\:([^()?#\.\/ ]+)(\(+[^ ]*\)+)?/g;
   ````
-  [Go to regexpr](http://regexr.com/) and test it out.
+  [Go to regexr](http://regexr.com/) and test it out.
 
- - an `array`
+when _opt_ is:
+ - a `function`: turns into the `node.handle` for the matching `node`
+ - a `plainObject`: turns into properties of the matching `node`
 
-  The first element is treated as a `string` the rest as its aliases.
+Properties can be parse before being assigned with [`manifold.parse('property')`](##manifoldparsepath o).
 
- - a `function`
-
-   Turns into the `node.handle` for the `rootNode`
-
- - an `object`
-
-   Turns into properties of the [`rootNode`](#rootNode)
-
-when `opt` is:
- - a `function`
-
-   It turns into the `node.handle` for that object's path
-
- - an `object`
-
-   Turns into the properties of the corresponding `node` for that `path`
-
-
-Properties to be attached to the `node` object of that `path` can be parsed with [`manifold.parse('property')`](##manifoldparsepath o).
-
-> Characters should be escaped i.e. `\\`w+ <br>
+> Characters should be escaped i.e. `\\` <br>
 > For now, only one group per parameter is allowed
 
-### manifold.get(path[, o])
+### manifold.get([path, opt])
 
-Obtain an object matching a path set previously
+Obtain an object set previously for the matching path
 
 _arguments_
-- `path` type `string` or `array`
-- `o` type `object`
+- `path` type `string`
+- `opt` type `plainObject`
 
 _return_
- - `clone` of the `node` matching the path with extra properties.
+ - `clone` of the `node`, or `reference` if `opt.ref` given, to that object node
 
-The returned `node` has no `children` property (to avoid deep cloning)
-and has extra properties:
- - url: if present, the url contained within the path including hash and query
+If `path` is not a string `get` will return the `rootNode` instead.
+
+Note: the returned `node` has no `children` property (to avoid deep cloning) and has some extra properties:
  - params: parsed params for the path
-
-> When `path` is `string` or `array` the corresponding node for that path is found taking into account, if previously set, its aliases.
+ - url: the url contained within the path including hash and query
 
 > All matches are partial i.e. /^regex baby/i. Not being strict is useful for `notFound` paths
 
-### manifold.store
+## Manifold instance properties
 
-The `manifold` instance `store`. Has these properties
-- `name`: the `name` set on instantiation via `opt.name`
-- `cache`: all previously set paths live here
-- `regex`: object with one key per `depth`, each being an array.
-- `masterRE` : array aggregating a regular expression for each `depth`.
-
-> When paths are set they are classified according to their `depth`
+- manifold.parth: a [parth](https://github.com/stringparser/parth) instance
+- manifold.store: where object nodes are saved in memory
 
 ## why
 
-I need it for the [runtime](https://github.com/stringparser/runtime) module.
+I Need it for the [runtime](https://github.com/stringparser/runtime) module ;)
 
 The project name is an homage to the concept of  [manifold](http://en.wikipedia.org/wiki/Manifold). Beautiful creature of Math and Physics thought. BUT, this can't be considered the real thing. That is: this is not a manifold. I'd wish!
 
 ## install
 
-$ npm install --save manifold
+With [npm](https://npmjs.org)
+
+    npm install manifold --save
 
 ### examples
 Run the [`example.js`](example.js) file.
@@ -203,7 +182,7 @@ manifold
 
 ### todo
 
-- [ ] add support for regexp input on the [parth](https://github.com/stringparser/parth)
+- [ ] add support to regexp paths
 
 ### license
 
