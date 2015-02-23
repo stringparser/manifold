@@ -15,9 +15,8 @@ it('should provide general purpose parser', function(){
 
 it('should be able to parse node properties', function(){
   // save default boiler
-  app.parse('property', function(parent, stems, arg){
-    var lastChild = stems[stems.length-1];
-    parent.children[lastChild].property = arg + 1;
+  app.parse('property', function(node, arg){
+    node.property = arg + 1;
   });
 
   app.set('path', { property: 2 });

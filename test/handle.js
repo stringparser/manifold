@@ -10,18 +10,7 @@ it('handle for the rootNode', function(){
     .should.have.property('handle', rootHandle);
 });
 
-it('handle for a command', function(){
-  function child(){}
-
-  app.set('get page.view /url', child)
-    .get('get page.view')
-    .should.not.have.property('handle', child);
-
-  app.get('get page.view /url')
-    .should.have.property('handle', child);
-});
-
-it('only last element should have handle', function(){
+it('given a path, only last element has it', function(){
   function yourHandle(){}
 
   app.set('get page.view /other/url', yourHandle);
@@ -37,4 +26,12 @@ it('only last element should have handle', function(){
   app.get('get page.view /other/url')
     .should
     .have.property('handle', yourHandle);
+});
+
+
+it('parse to prop based on function.name', function(){
+  function handleError(){}
+
+  app.set(handleError);
+  app.get().error.should.be.eql(handleError);
 });
