@@ -2,6 +2,7 @@
 
 // ## dependencies
 //
+var Parth = require('parth');
 var util = require('./lib/util');
 
 // ## exports
@@ -23,7 +24,7 @@ function Manifold(o){
   }
 
   o = o || { };
-  this.parth = new util.Parth();
+  this.parth = new Parth();
   this.store = {
     name: util.type(o.name).string || '#rootNode',
     depth: 0
@@ -61,6 +62,19 @@ function Manifold(o){
     return this;
   };
   this.parse.prop = Object.create(null);
+
+  // function.name to property
+  // if follows pattern handle[PropertyName]
+  //
+  this.parse('handle', function(node, handle){
+    if(handle.name && (/^handle(:?[A-Z].+)/).test(handle.name)){
+      var prop = handle.name.replace(/handle/i, '');
+      prop = prop.charAt(0).toLowerCase() + prop.substring(1);
+      node[prop] = handle;
+    } else {
+      node.handle = handle;
+    }
+  });
 }
 
 // ## Manifold.set
@@ -77,15 +91,15 @@ Manifold.prototype.set = function(stems, opt){
   var stemsIs = util.type(stems);
   if( !stemsIs.match(/function|string|array|object/g) ){
    throw new util.Error('set(stems [,options]) \n'+
-     '> stems should be: `string`, `array`, `function` or `object`');
+     '> `stems` should be: `string`, `array`, `function` or `object`');
   }
 
   var optIs = util.type(opt);
   opt = optIs.plainObject || stemsIs.plainObject || { };
   opt.handle = stemsIs.function || optIs.function;
 
+  var node = this.store;
   stems = (this.parth.set(stems) || '').argv || [ ];
-  var node = this.store, parent = this.store;
   stems.forEach(function createChildren(stem){
     // ensure node existence
     if(!node.children){ node.children = { }; }
@@ -96,7 +110,6 @@ Manifold.prototype.set = function(stems, opt){
         parent: node.stem || this.store.name
       };
     }
-    parent = node;
     node = node.children[stem];
   }, this);
 
@@ -105,12 +118,11 @@ Manifold.prototype.set = function(stems, opt){
     var value = util.clone(opt[name], true);
     if(value === void 0){ return ; }
     if(this.parse.prop[name]){
-      return this.parse(name)(parent, stems.slice(), value);
+      return this.parse(name)(node, value, stems.slice());
     } else if(util.type(value).plainObject){
       node[name] = node[name] || { };
       util.merge(node[name], value);
     } else { node[name] = value; }
-
   }, this);
 
   return this;
