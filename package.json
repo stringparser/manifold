@@ -8,7 +8,7 @@
   "dependencies": {
     "inherits": "^2.0.1",
     "lodash.clone": "^2.4.1",
-    "parth": "^1.10.x",
+    "parth": "^1.x.x",
     "utils-merge": "^1.0.0",
     "utils-type": "*"
   },
