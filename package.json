@@ -10,7 +10,7 @@
     "lodash.clone": "^2.4.1",
     "parth": "^1.x.x",
     "utils-merge": "^1.0.0",
-    "utils-type": "*"
+    "utils-type": "^0.x.x"
   },
   "author": "Javier Carrillo",
   "description": "object manifolds",
