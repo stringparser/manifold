@@ -56,7 +56,7 @@ function Manifold(o){
 
     var self = this;
     this.parse.prop[name] = function(/* arguments */){
-      return parser.apply(self, arguments) || { };
+      return parser.apply(self, arguments);
     };
 
     return this;
@@ -99,7 +99,7 @@ Manifold.prototype.set = function(stems, opt){
   opt.handle = stemsIs.function || optIs.function;
 
   var node = this.store;
-  stems = (this.parth.set(stems) || '').argv || [ ];
+  stems = (this.parth.set(stems) || '').argv || [];
   stems.forEach(function createChildren(stem){
     // ensure node existence
     if(!node.children){ node.children = { }; }
@@ -120,7 +120,7 @@ Manifold.prototype.set = function(stems, opt){
     if(this.parse.prop[name]){
       return this.parse(name)(node, value, stems.slice());
     } else if(util.type(value).plainObject){
-      node[name] = node[name] || { };
+      node[name] = node[name] || {};
       util.merge(node[name], value);
     } else { node[name] = value; }
   }, this);
@@ -143,7 +143,7 @@ Manifold.prototype.set = function(stems, opt){
 //
 Manifold.prototype.get = function(stems, opt){
   var stem, index, found;
-  opt = opt || util.type(stems).plainObject || { };
+  opt = opt || util.type(stems).plainObject || {};
 
   index = 0;
   stems = this.parth.get(stems, opt);
