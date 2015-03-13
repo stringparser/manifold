@@ -1,10 +1,21 @@
 {
   "name": "manifold",
   "main": "index.js",
+  "author": "Javier Carrillo",
   "version": "2.4.5",
-  "engines": {
-    "node": ">= 0.8.0"
+  "license": "MIT",
+  "homepage": "https://github.com/stringparser/manifold",
+  "repository": "stringparser/manifold",
+  "description": "object manifolds",
+  "bugs": {
+    "url": "https://github.com/stringparser/manifold/issues"
   },
+  "keywords": [
+    "parse",
+    "handle",
+    "regex",
+    "object"
+  ],
   "dependencies": {
     "inherits": "^2.0.1",
     "lodash.clone": "^2.4.1",
@@ -12,27 +23,14 @@
     "utils-merge": "^1.0.0",
     "utils-type": "^0.x.x"
   },
-  "author": "Javier Carrillo",
-  "description": "object manifolds",
-  "repository": "stringparser/manifold",
-  "homepage": "https://github.com/stringparser/manifold",
-  "bugs": {
-    "url": "https://github.com/stringparser/manifold/issues"
+  "devDependencies": {
+    "jshint-stylish": "*",
+    "jshint": "*",
+    "should": "*",
+    "mocha": "*"
   },
   "scripts": {
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
     "test": "npm run-script lint && mocha --reporter spec test/_main.js"
-  },
-  "devDependencies": {
-    "mocha": "*",
-    "should": "*",
-    "jshint": "*",
-    "jshint-stylish": "*"
-  },
-  "keywords": [
-    "maleable",
-    "manifold",
-    "object"
-  ],
-  "license": "MIT"
+  }
 }
