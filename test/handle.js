@@ -27,11 +27,3 @@ it('given a path, only last element has it', function(){
     .should
     .have.property('handle', yourHandle);
 });
-
-
-it('parse to prop based on function.name', function(){
-  function handleError(){}
-
-  app.set(handleError);
-  app.get().error.should.be.eql(handleError);
-});

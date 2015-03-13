@@ -6,7 +6,7 @@ var app = new Manifold({ name: rootName });
 
 it('should have proper depth', function(){
   app.set('get page.data /url').get()
-    .should.have.property('depth', 0);
+    .should.not.have.property('depth');
 
   app.get('get')
     .should.have.property('depth', 1);
@@ -21,8 +21,7 @@ it('should have proper depth', function(){
 it('should have proper depth when using :params', function(){
   app.set('page view.:data(\\w+\\d*) /url').get()
   .should.have.properties({
-    name: 'depthTest',
-    depth: 0
+    name: 'depthTest'
   });
 
   app.get('page view.sunday21 /url')

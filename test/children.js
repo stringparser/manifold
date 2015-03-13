@@ -27,17 +27,17 @@ it('should be able to create nested using :params structure', function(){
   app.set('(get|post|put|delete) page.:widget /:url');
 
   app.get({ref: true})
-  .should.have.property('children');
+    .should.have.property('children');
 
   app.get('(get|post|put|delete)', {ref : true}).children
     .should.have.property('page.');
 
   app.get('(get|post|put|delete) page.', {ref: true}).children
-  .should.have.property(':widget');
+    .should.have.property(':widget');
 
   app.get('(get|post|put|delete) page.:widget', {ref : true}).children
-  .should.have.property('/:url');
+    .should.have.property('/:url');
 
   app.get('put page.post /blog', {ref : true})
-  .should.not.have.property('children');
+    .should.not.have.property('children');
 });

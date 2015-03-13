@@ -20,7 +20,6 @@ module.exports = {
     ];
     // last
     var last = [
-      'parse.js'
     ];
 
     // use it also to omit _main & _util files
