@@ -55,7 +55,6 @@ Manifold.prototype.set = function(stems, o){
     });
   }
 
-  console.log(o); console.log(this.parses);
   Object.keys(o).forEach(function(key){
     var value = util.clone(o[key], true);
     if(value === null){ delete node[key]; }
@@ -68,8 +67,6 @@ Manifold.prototype.set = function(stems, o){
       node[key] = value;
     }
   }, this);
-
-  console.log(node);
 
   return this;
 };

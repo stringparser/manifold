@@ -18,11 +18,9 @@ it('should parse properties when one sets them', function(){
 it('should support objects for setting parsers', function(){
   app.parse({
     number: function(node, value){
-      console.log(node, value);
       node.number = value + 2;
     },
     string: function(node, value){
-      console.log(node, value);
       node.string = value.trim();
     }
   });
