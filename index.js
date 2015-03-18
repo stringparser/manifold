@@ -6,62 +6,81 @@ exports = module.exports = Manifold;
 
 // # Manifold constructor
 //
-// arguments
-//  - options, type `object` optional
-//
-// returns a new manifold instance
-//
-function Manifold(o){
+function Manifold(){
   if(this instanceof Manifold){
-    o = o || { };
-    this.parth = new util.Parth();
-    this.store = {name: util.type(o.name).string || '#rootNode'};
-    return this;
+    return util.Parth.call(this);
   }
-  return new Manifold(o);
+  return new Manifold();
 }
+util.inherits(Manifold, util.Parth);
 
-// ## manifold.set(stems[, options])
-// setup a nested object for regexp lookup
+// ## manifold.set(path[, options])
+// setup path hierachy via regexes
 //
 // arguments
-//  - stems, type `string`, plain `object` or `function`
-//  - options, type plain `object` or `function`
+//  - `path` type string, function or plainObject
+//  - `options` type function or plainObject
 //
 // returns this
 //
-Manifold.prototype.set = function(stems, o){
-  var sis = util.type(stems);
-  if( !sis.match(/string|function|plainObject/) ){
-   throw new TypeError('set(stems[, options]) \n'+
-     'stems should be a `string`, `function` or a plain `object`');
+Manifold.prototype.set = function(path, o){
+  var pis = util.type(path), ois = util.type(o);
+  if(!pis.match(/string|function|plainObject/)){
+    throw new TypeError('set(path/options [, options]) '+
+      '`path/options`, should be:' +
+      ' - string (path)  ' +
+      ' - function or plainObject (options)'
+    );
   }
 
-  var ois = util.type(o), handle = sis.function || ois.function;
-  o = ois.plainObject || sis.plainObject || {};
-  if(handle){ o.handle = handle; }
-  var node = this.store;
-  stems = sis.string;
+  o = ois.plainObject || pis.plainObject || {};
+  if(pis.function || ois.function){
+    o.handle = pis.function || ois.function;
+  }
 
-  if(stems){
-    stems = this.parth.set(stems);
-    stems.argv.forEach(function(stem){
-      node.children = node.children || {};
-      node = node.children[stem] = node.children[stem] || {
-        stem: stems.path.slice(0, stems.path.indexOf(stem) + stem.length),
-        depth: node.depth + 1 || 1,
-        parent: node.stem || node.name
-      };
+  var node = this.store;
+  var stem = this.add(path || o.path);
+
+  if(stem && this.regex.length > 1){
+
+    node = this.store.children;
+    var source = this.regex.master.source;
+    var group = source.match(/\(+\^.*?\)+(?=\||$)/g);
+
+    this.regex.forEach(function(re, index, regex){
+      var found = util.exclude(group[index], source).exec(re.path);
+      if(!found){ return ; }
+      found = regex[found.indexOf(found.shift())];
+      var child = node[re.path];
+      var parent = node[found.path];
+      if(!child.parent || child.parent.regex.depth < re.depth){
+        child.parent = parent;
+      }
+
+      if(!parent.children){
+        Object.defineProperty(parent, 'children', {
+          writable: false,
+          enumerable: false,
+          configurable: false,
+          value: {}
+        });
+      }
+
+      if(!parent.children[child.path]){
+        parent.children[child.path] = child;
+      }
     });
+
+    node = node[stem.path];
   }
 
   Object.keys(o).forEach(function(key){
     var value = util.clone(o[key], true);
     if(value === null){ delete node[key]; }
     else if(this.parses && this.parses[key]){
-      this.parses[key].call(this, node, value, stems);
+      this.parses[key].call(this, node, value, o);
     } else if(util.type(value).plainObject){
-      node[key] = node[key] || {};
+      if(!node[key]){ node[key] = {}; }
       util.merge(node[key], value);
     } else {
       node[key] = value;
@@ -71,37 +90,24 @@ Manifold.prototype.set = function(stems, o){
   return this;
 };
 
-// ## manifold.get(stems[, options])
+// ## manifold.get(path[, options])
 // > string maching a regexp to find an object
 //
 // arguments
-//  - stems, type `string`
-//  - options, type `object` with all extra information
+//  - `path` type string
+//  - `options` type object with all extra information
 //
 // returns the object `node` found
 //
 Manifold.prototype.get = function(path, o){
-  var stem, stems, index = -1;
-  o = util.type(o || path).object || {};
+  o = util.type(o || path).match(/plainObject|function/) || {};
 
-  if(typeof path === 'string'){
-    stems = this.parth.get(path, o);
-    if(stems){ index = 0; }
-    else if(o.ref){ index = 0; stems = o; }
-  }
-
-  var found = this.store;
-  while(index > -1){
-    stem = stems.argv[index];
-    if(found.children && found.children[stem]){
-      found = found.children[stem]; index++;
-    } else { index = -1; } // always failback
-  }
-
+  var stem = this.match(path, o);
+  var found = stem ? this.store.children[stem.path] : this.store;
+  if(stem === null){ o.notFound = false; }
   if(o.ref){ return found; }
 
-  util.merge(o, found);
-  delete o.children;
+  util.merge(o, util.omit(found, 'parent', 'regex'));
 
   return util.clone(o, true);
 };
@@ -118,19 +124,21 @@ Manifold.prototype.get = function(path, o){
 //  - this for two arguments
 //
 Manifold.prototype.parse = function(prop, parser){
-  if(!parser && (!prop || typeof prop === 'string')){
-    return (this.parses && this.parses[prop]) || util.parse;
-  } else if(util.type(prop).plainObject){
-    Object.keys(prop).forEach(function(key){
-      this.parse(key, prop[key]);
-    }, this);
+  if(!parser && this.parses){
+    return this.parses[prop] || util.parse;
   } else if(typeof prop !== 'string'){
+    throw new TypeError('parse(prop[, parser])\n'+
+      ' `prop` should be a string');
+  } else if(typeof parser !== 'function'){
     throw new TypeError('parse(prop, parser):\n'+
-      '> prop should be a `string` or an `object` ');
-  } else {
-    if(!this.parses){ this.parses = {}; }
-    this.parses[prop] = parser;
+      ' `parser`, if given, should be a function');
   }
+
+  var self = this;
+  if(!this.parses){ this.parses = {}; }
+  this.parses[prop] = function(/* arguments */){
+    return parser.apply(self, arguments);
+  };
 
   return this;
 };
