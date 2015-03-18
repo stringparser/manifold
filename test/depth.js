@@ -1,32 +1,22 @@
 'use strict';
 /* global Manifold: true */
 
+var extra = {};
 var rootName = 'depthTest';
 var app = new Manifold({ name: rootName });
 
 it('should have proper depth', function(){
-  app.set('get page.data /url').get()
-    .should.not.have.property('depth');
-
-  app.get('get')
-    .should.have.property('depth', 1);
-
-  app.get('get page.data')
-    .should.have.property('depth', 3);
+  app.set('get page.data /url');
 
   app.get('get page.data /url')
     .should.have.property('depth', 4);
 });
 
 it('should have proper depth when using :params', function(){
-  app.set('page view.:data(\\w+\\d*) /url').get()
-  .should.have.properties({
-    name: 'depthTest'
-  });
-
-  app.get('page view.sunday21 /url')
-  .should.have.properties({
-    stem: 'page view.:data(\\w+\\d*) /url',
+  app.set('page view.:data(\\w+\\d*) /url');
+  app.get('page view.sunday21 /url', extra);
+  extra.should.have.properties({
+    path: 'page view.:data(\\w+\\d*) /url',
     depth: 4
   });
 });

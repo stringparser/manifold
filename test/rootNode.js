@@ -4,9 +4,14 @@
 var rootName = 'rootNode';
 var app = new Manifold({ name: rootName });
 
-it('should have property name ', function(){
-  app.get()
-    .should.have.property('name', rootName);
+it('should have properties', function(){
+  app.get({ref: true}).should.have
+    .properties(['name', 'children']);
+});
+
+it('should not have properties', function(){
+  app.get().should.not
+    .have.properties(['parent', 'depth']);
 });
 
 function rootHandle(){ return; }
