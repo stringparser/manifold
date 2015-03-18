@@ -19,7 +19,6 @@
   "dependencies": {
     "parth": "^1.x.x",
     "utils-type": "^0.x.x",
-    "lodash.omit": "^3.0.0",
     "utils-merge": "^1.0.0",
     "lodash.clone": "^2.4.1",
     "inherits": "^2.0.1"
