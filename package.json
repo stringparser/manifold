@@ -7,14 +7,22 @@
   "homepage": "https://github.com/stringparser/manifold",
   "repository": "stringparser/manifold",
   "description": "object manifolds",
-  "bugs": {"url": "https://github.com/stringparser/manifold/issues"},
-  "keywords": ["parse", "handle", "regex", "object"],
+  "bugs": {
+    "url": "https://github.com/stringparser/manifold/issues"
+  },
+  "keywords": [
+    "parse",
+    "handle",
+    "regex",
+    "object"
+  ],
   "dependencies": {
-    "lodash.clone": "^2.4.1",
-    "utils-merge": "^1.0.0",
+    "parth": "^1.x.x",
     "utils-type": "^0.x.x",
-    "inherits": "^2.0.1",
-    "parth": "^1.x.x"
+    "lodash.omit": "^3.0.0",
+    "utils-merge": "^1.0.0",
+    "lodash.clone": "^2.4.1",
+    "inherits": "^2.0.1"
   },
   "devDependencies": {
     "jshint-stylish": "*",
