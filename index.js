@@ -44,30 +44,24 @@ Manifold.prototype.set = function(path, o){
   if(stem && this.regex.length > 1){
 
     node = this.store.children;
-    var source = this.regex.master.source;
-    var group = source.match(/\(+\^.*?\)+(?=\||$)/g);
+    var master = this.regex.master;
+    var group = master.source.match(/\(+\^.*?\)+(?=\||$)/g);
 
     this.regex.forEach(function(re, index, regex){
-      var found = util.exclude(group[index], source).exec(re.path);
+      var found = util.exclude(group[index], master).exec(re.path);
       if(!found){ return ; }
       found = regex[found.indexOf(found.shift())];
       var child = node[re.path];
       var parent = node[found.path];
-      if(!child.parent || child.parent.regex.depth < re.depth){
-        child.parent = parent;
-      }
 
-      if(!parent.children){
-        Object.defineProperty(parent, 'children', {
-          writable: false,
-          enumerable: false,
-          configurable: false,
-          value: {}
-        });
-      }
-
+      util.defineProperty(parent, 'children', 'w', {});
       if(!parent.children[child.path]){
         parent.children[child.path] = child;
+      }
+
+      util.defineProperty(child, 'parent', 'w', {depth: 0});
+      if(child.parent.depth < re.depth){
+        child.parent = parent;
       }
     });
 
