@@ -1,13 +1,9 @@
 /* jshint strict: false */
 /* global Manifold: true */
 
-var rootName = 'pathTest';
-var app = new Manifold({ name: rootName });
+var app = new Manifold();
 
 it('should have proper path', function(){
-
-  app.set('get page.data /url').get()
-    .should.have.property('name', rootName);
 
   app.get('get')
     .should.have.property('path', 'get');

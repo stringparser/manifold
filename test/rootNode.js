@@ -1,13 +1,7 @@
 /* jshint strict: false */
 /* global Manifold: true */
 
-var rootName = 'rootNode';
-var app = new Manifold({ name: rootName });
-
-it('should have properties', function(){
-  app.get({ref: true}).should.have
-    .properties(['name', 'children']);
-});
+var app = new Manifold();
 
 it('should not have properties', function(){
   app.get().should.not
