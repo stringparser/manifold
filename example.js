@@ -2,12 +2,27 @@
 
 var app = require('./.')();
 
-var res = app
-  .set('go /:place order.:beberage(\\d+\\w+)', function handleIt(){})
-  .get('go /haveFun/#hash?query=here order.10beers now');
+function irand(){
+  return Math.floor(Math.random()*10);
+}
 
-console.log(res);
-console.log(app.get(res.parent));
+var input = [
+  'get view.things',
+  'get view',
+  'get view.page',
+  '(post|get) :page.view',
+  'get page',
+  'get',
+  'get /:page/view',
+  'get /',
+  'get /:page',
+  'get /:page/:view'
+].sort(function(){
+  return irand()*Math.pow(-1, irand());
+});
 
-var stems = 'get /one/baby order.10beers tomorrow'.split(/[ ]+/);
-console.log(app.get(stems));
+console.log(input);
+
+input.forEach(app.set.bind(app));
+
+console.log(app.store.children);
