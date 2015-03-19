@@ -3,6 +3,25 @@
 var fs = require('fs');
 
 module.exports = {
+  irand : function (){
+    return Math.random()*10;
+  },
+  sample : function(){
+
+    var self = this;
+    return [
+      'get',
+      'get page',
+      'get page.view',
+      'get page.data',
+      'get /',
+      'get /:page',
+      'get /:page/view',
+      'get /:page/:view'
+    ].sort(function(){
+      return self.irand()*Math.pow(-1, Math.floor(self.irand()));
+    }, self);
+  },
   testSuite : function(){
     var testSuite = fs.readdirSync(__dirname);
     // first tests
@@ -27,26 +46,5 @@ module.exports = {
     });
 
     return first.concat(testSuite, last);
-  },
-  irand : function (){
-    return Math.floor(Math.random()*10);
-  },
-  sample : function(){
-
-    var self = this;
-    return [
-      'get view.things',
-      'get view',
-      'get view.page',
-      '(post|get) :page.view',
-      'get page',
-      'get',
-      'get /:page/view',
-      'get /',
-      'get /:page',
-      'get /:page/:view'
-    ].sort(function(){
-      return Math.random()*10*Math.pow(-1, self.irand());
-    }, self);
   }
 };

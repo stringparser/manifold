@@ -2,13 +2,12 @@
 
 module.exports = function(Manifold, util){
 
-  it('test data creation', function(){
+  it('data creation should not fail', function(){
     util.sample();
   });
 
-  it('sample data should be randomly ordered', function(){
+  it('sample data should be random', function(){
     var sampleData = util.sample();
     util.sample().should.not.be.eql(sampleData);
   });
-
 };
