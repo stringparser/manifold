@@ -33,14 +33,14 @@ Manifold.prototype.set = function(path, o){
     );
   }
 
-  o = ois.plainObject || pis.plainObject;
+  o = ois.plainObject || pis.plainObject || {};
   var handle = pis.function || ois.function;
-  if(handle){ o = o || {}; o.handle = handle; }
+  if(handle){ o.handle = handle; }
 
   var node = this.store;
-  var stem = util.boil(path || o ? o.path : null);
+  var stem = util.boil(path || o.path);
 
-  if(stem && !node[stem.path]){
+  if(stem && !node.children[stem.path]){
     this.add(stem.path);
     var master = this.regex.master;
     var group = master.source.match(/\(+\^.*?\)+(?=\||$)/g);
@@ -96,20 +96,20 @@ Manifold.prototype.set = function(path, o){
 Manifold.prototype.get = function(path, o){
   o = util.type(o || path).match(/plainObject|function/) || {};
 
-  var found = this.store;
+  var node = this.store;
   var stem = this.match(path, o);
-  if(stem){ found = found.children[stem.path]; }
-  if(o.ref){ return found; }
+  if(stem){ node = node.children[stem.path]; }
+  if(o.ref){ return node; }
 
-  while(found){
-    for(var key in found){
+  while(node){
+    for(var key in node){
       if(o.hasOwnProperty(key)){ continue; }
-      o[key] = util.clone(found[key], true);
+      o[key] = util.clone(node[key], true);
     }
 
-    if(found.parent && found.parent.depth < found.depth){
-      found = found.parent;
-    } else if(found){ found = null; }
+    if(node.parent && node.parent.depth < node.depth){
+      node = node.parent;
+    } else if(node){ node = null; }
   }
 
   return o;
@@ -127,16 +127,16 @@ Manifold.prototype.get = function(path, o){
 //  - this for two arguments
 //
 Manifold.prototype.parse = function(prop, parser){
-  if(util.type(prop).plainObject){
-    Object.keys(prop).forEach(function(key){
+  var propis = util.type(prop);
+  if(propis.plainObject){
+    return Object.keys(prop).forEach(function(key){
       return this.parse(key, prop[key]);
     }, this);
-    return this;
   }
 
   if(!parser && this.parses){
     return prop ? this.parses[prop] : util.parse;
-  } else if(typeof prop !== 'string'){
+  } else if(!propis.string){
     throw new TypeError('parse(prop[, parser])\n'+
       ' `prop` should be a string');
   } else if(typeof parser !== 'function'){
