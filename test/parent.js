@@ -1,14 +1,18 @@
-/* jshint strict: false */
-/* global Manifold: true */
+'use strict';
 
-var rootName = 'parentTest';
-var app = new Manifold({ name: rootName });
+module.exports = function(Manifold, util){
+  var app = new Manifold();
 
-it('should have its parent', function(){
-  app.set('get page.data /url');
-  app.set('get page.data');
+  it('test data', function(){
+    util.sample().forEach(app.set.bind(app));
+  });
 
-  app.get('get page.data /url', {ref: true})
-    .should.be.an.Object.and
-    .have.property('parent', app.get('get page.data',{ref:true}));
-});
+  it('should have its parent', function(){
+    app.set('get page.data /url');
+    app.set('get page.data');
+
+    app.get('get page.data /url', {ref: true})
+      .should.be.an.Object.and
+      .have.property('parent', app.get('get page.data',{ref:true}));
+  });
+};

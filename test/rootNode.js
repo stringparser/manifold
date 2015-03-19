@@ -1,21 +1,27 @@
-/* jshint strict: false */
-/* global Manifold: true */
+'use strict';
 
-var app = new Manifold();
+module.exports = function(Manifold, util){
 
-it('should not have properties', function(){
-  app.get().should.not
-    .have.properties(['parent', 'depth']);
-});
+  var app = new Manifold();
+  function rootHandle(){ return; }
 
-function rootHandle(){ return; }
-it('should have rootHandle', function(){
-  app.set(rootHandle).get()
-    .should.have.property('handle', rootHandle);
-});
+  it('test data', function(){
+    util.sample().forEach(app.set.bind(app));
+  });
 
-var rootCompletion = ['one', 'two', 'three'];
-it('should have completion', function(){
-  app.set({completion: rootCompletion}).get()
-    .should.have.property('completion', rootCompletion);
-});
+  it('should insert rootHandle', function(){
+    app.set(rootHandle).get()
+      .should.have.property('handle', rootHandle);
+  });
+
+  it('should not have properties ({ref: undefined}) ', function(){
+    app.get()
+      .should.not.have.properties(['parent', 'depth']);
+  });
+
+  it('should have properties ({ref: true})', function(){
+    app.get({ref: true})
+      .should.have.property('children');
+  });
+
+};

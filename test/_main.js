@@ -1,9 +1,8 @@
-/* jshint strict: false */
-/* global Manifold: true, util: true, should: true */
+'use strict';
 
-Manifold = require('../');
-should = require('should');
-util = require('./_util.js');
+var Manifold = require('../');
+var should = require('should');
+var util = require('./_util.js');
 
 var path = require('path');
 var packageName = require('../package').name;
@@ -13,7 +12,7 @@ describe(packageName, function(){
     var suite = path.basename(file, path.extname(file));
     describe(suite, function(){
       // the actual suite code
-      require('./'+file);
+      require('./'+file)(Manifold, util);
     });
   });
 });
