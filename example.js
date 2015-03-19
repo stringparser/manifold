@@ -24,19 +24,26 @@ var input = [
 console.log(input);
 console.log(' ---- ');
 
-function pp(obj){
+function pp(obj, sep){
   if(!obj){ return '[nope]'; }
-  return JSON.stringify(obj, null, ' ');
+  return JSON.stringify(obj, null, sep || ' ');
 }
 
 input.forEach(app.set.bind(app));
 Object.keys(app.store.children).forEach(function(path){
   var node = this[path];
-  console.log('stem', pp(node));
+  console.log('stem', node);
   console.log('regex', node.regex);
   console.log('parent', pp(node.parent));
   console.log('children', pp(node.children));
   console.log(' ---- ');
 }, app.store.children);
 
-console.log(pp(app.regex));
+app.set('get', function getHandle(){});
+
+app.set({name: 'test'});
+
+app.set('get /:page/:view', function getPageView(){});
+
+console.log(app.get('get /user/profile'));
+console.log(app.store);
