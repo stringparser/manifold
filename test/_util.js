@@ -11,7 +11,7 @@ module.exports = {
     var self = this;
     return [
       'get',
-      'get page',
+      'get page.',
       'get page.view',
       'get page.data',
       'get /',

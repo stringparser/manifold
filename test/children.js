@@ -4,14 +4,20 @@ module.exports = function(Manifold, util){
   var app = new Manifold();
   var sample = util.sample();
 
-  it('should be automatically added', function(){
+  it('should have parent added after set', function(){
     sample.forEach(app.set.bind(app));
-    
-    app.get('get', {ref: true})
-      .should.have.property('children',{
-        'get /': app.get('get /', {ref: true}),
-        'get page': app.get('get page', {ref: true}),
-        'get /:page': app.get('get /:page', {ref: true})
-      });
+
+    var node = app.get('get page.', {ref: true});
+    console.log(node.parent.children);
+    console.log(Object.getOwnPropertyNames(node));
+
+  });
+
+  it('should not be enumerable after overwrite', function(){
+    var getPage = app.get('get page.', {ref: true});
+    getPage.children = {noob: true};
+
+    Object.getOwnPropertyDescriptor(getPage, 'children')
+      .should.have.property('enumerable', false);
   });
 };
