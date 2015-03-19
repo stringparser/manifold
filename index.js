@@ -41,6 +41,7 @@ Manifold.prototype.set = function(path, o){
   var stem = util.boil(path || o.path);
 
   if(stem && !node.children[stem.path]){
+
     this.add(stem.path);
     var master = this.regex.master;
     var group = master.source.match(/\(+\^.*?\)+(?=\||$)/g);
@@ -65,7 +66,6 @@ Manifold.prototype.set = function(path, o){
     });
   }
 
-  if(!o){ return this; }
   if(stem){ node = node.children[stem.path]; }
   Object.keys(o).forEach(function(key){
     var value = util.clone(o[key], true);
@@ -73,7 +73,7 @@ Manifold.prototype.set = function(path, o){
     else if(this.parses && this.parses[key]){
       this.parses[key](node, value, o);
     } else if(util.type(value).plainObject){
-      if(!node[key]){ node[key] = {}; }
+      if(!node.hasOwnProperty(key)){ node[key] = {}; }
       util.merge(node[key], value);
     } else { node[key] = value; }
   }, this);
@@ -82,7 +82,7 @@ Manifold.prototype.set = function(path, o){
 };
 
 // ## manifold.get(path[, options])
-// > string maching a regexp to find an object
+// > find object maching using a previously set path
 //
 // arguments
 //  - `path` type string
@@ -97,6 +97,7 @@ Manifold.prototype.get = function(path, o){
   var node = this.store;
   var stem = this.match(path, o);
   if(stem){ node = node.children[stem.path]; }
+
   if(o.ref){ return node; }
 
   while(node){
