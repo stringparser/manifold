@@ -16,7 +16,7 @@ it('should have proper depth when using :params', function(){
   app.set('page view.:data(\\w+\\d*) /url');
   app.get('page view.sunday21 /url', extra);
   extra.should.have.properties({
-    path: 'page view.:data(\\w+\\d*) /url',
+    path: 'page view.sunday21 /url',
     depth: 4
   });
 });
