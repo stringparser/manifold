@@ -75,9 +75,7 @@ Manifold.prototype.set = function(path, o){
     } else if(util.type(value).plainObject){
       if(!node[key]){ node[key] = {}; }
       util.merge(node[key], value);
-    } else {
-      node[key] = value;
-    }
+    } else { node[key] = value; }
   }, this);
 
   return this;
