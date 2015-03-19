@@ -33,46 +33,45 @@ Manifold.prototype.set = function(path, o){
     );
   }
 
-  o = ois.plainObject || pis.plainObject || {};
-  if(pis.function || ois.function){
-    o.handle = pis.function || ois.function;
-  }
+  o = ois.plainObject || pis.plainObject;
+  var handle = pis.function || ois.function;
+  if(handle){ o = o || {}; o.handle = handle; }
 
   var node = this.store;
-  var stem = this.add(path || o.path);
+  var stem = util.boil(path || o ? o.path : null);
 
-  if(stem && this.regex.length > 1){
-
-    node = this.store.children;
+  if(stem && !node[stem.path]){
+    this.add(stem.path);
     var master = this.regex.master;
     var group = master.source.match(/\(+\^.*?\)+(?=\||$)/g);
 
     this.regex.forEach(function(re, index, regex){
       var found = util.exclude(group[index], master).exec(re.path);
       if(!found){ return ; }
+
       found = regex[found.indexOf(found.shift())];
-      var child = node[re.path];
-      var parent = node[found.path];
+      var child = node.children[re.path];
+      var parent = node.children[found.path];
 
       util.defineProperty(parent, 'children', 'w', {});
       if(!parent.children[child.path]){
         parent.children[child.path] = child;
       }
 
-      util.defineProperty(child, 'parent', 'w', {depth: 0});
-      if(child.parent.depth < re.depth){
+      util.defineProperty(child, 'parent', 'w', parent);
+      if(child.parent.regex.depth < re.depth){
         child.parent = parent;
       }
     });
-
-    node = node[stem.path];
   }
 
+  if(!o){ return this; }
+  if(stem){ node = node.children[stem.path]; }
   Object.keys(o).forEach(function(key){
     var value = util.clone(o[key], true);
     if(value === null){ delete node[key]; }
     else if(this.parses && this.parses[key]){
-      this.parses[key].call(this, node, value, o);
+      this.parses[key](node, value, o);
     } else if(util.type(value).plainObject){
       if(!node[key]){ node[key] = {}; }
       util.merge(node[key], value);
@@ -93,17 +92,27 @@ Manifold.prototype.set = function(path, o){
 //
 // returns the object `node` found
 //
+
 Manifold.prototype.get = function(path, o){
   o = util.type(o || path).match(/plainObject|function/) || {};
 
+  var found = this.store;
   var stem = this.match(path, o);
-  var found = stem ? this.store.children[stem.path] : this.store;
-  if(stem === null){ o.notFound = false; }
+  if(stem){ found = found.children[stem.path]; }
   if(o.ref){ return found; }
 
-  util.merge(o, util.omit(found, 'parent', 'regex'));
+  while(found){
+    for(var key in found){
+      if(o.hasOwnProperty(key)){ continue; }
+      o[key] = util.clone(found[key], true);
+    }
 
-  return util.clone(o, true);
+    if(found.parent && found.parent.depth < found.depth){
+      found = found.parent;
+    } else if(found){ found = null; }
+  }
+
+  return o;
 };
 
 // ## manifold.parse(prop[, parser])
@@ -118,8 +127,15 @@ Manifold.prototype.get = function(path, o){
 //  - this for two arguments
 //
 Manifold.prototype.parse = function(prop, parser){
+  if(util.type(prop).plainObject){
+    Object.keys(prop).forEach(function(key){
+      return this.parse(key, prop[key]);
+    }, this);
+    return this;
+  }
+
   if(!parser && this.parses){
-    return this.parses[prop] || util.parse;
+    return prop ? this.parses[prop] : util.parse;
   } else if(typeof prop !== 'string'){
     throw new TypeError('parse(prop[, parser])\n'+
       ' `prop` should be a string');
