@@ -17,11 +17,11 @@
     "object"
   ],
   "dependencies": {
-    "parth": "^1.x.x",
-    "utils-type": "^0.x.x",
-    "utils-merge": "^1.0.0",
+    "inherits": "^2.0.1",
     "lodash.clone": "^2.4.1",
-    "inherits": "^2.0.1"
+    "parth": "^1.x.x",
+    "utils-merge": "^1.0.0",
+    "utils-type": "^0.x.x"
   },
   "devDependencies": {
     "jshint-stylish": "*",
