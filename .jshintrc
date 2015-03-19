@@ -17,8 +17,5 @@
   "unused": true,
   "node": true,
   "mocha" : true,
-  "laxbreak": true,
-  "test/**" : {
-    "globals": ['Manifold']
-  }
+  "laxbreak": true
 }
