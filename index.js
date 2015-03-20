@@ -7,10 +7,20 @@ exports = module.exports = Manifold;
 // # Manifold constructor
 //
 function Manifold(){
-  if(this instanceof Manifold){
-    return util.Parth.call(this);
+  if(!(this instanceof Manifold)){
+    return new Manifold();
   }
-  return new Manifold();
+
+  this.parses = {};
+  this.parse(util.defaultParsers);
+
+  util.Parth.call(this);
+  // > just to make logging pretty
+  Object.defineProperty(this, 'regex', {
+    enumerable: false,
+    value: this.regex
+  });
+
 }
 util.inherits(Manifold, util.Parth);
 
@@ -44,7 +54,6 @@ Manifold.prototype.parse = function(prop, parser){
   }
 
   var self = this;
-  if(!this.parses){ this.parses = {}; }
   this.parses[prop] = function(/* arguments */){
     return parser.apply(self, arguments);
   };
@@ -71,21 +80,32 @@ Manifold.prototype.set = function(path, o){
     );
   }
 
-  o = ois.plainObject || pis.plainObject || {};
+  o = ois.plainObject || pis.plainObject || '';
   var handle = pis.function || ois.function;
-  if(handle){ o.handle = handle; }
+  if(handle){ o = o || {}; o.handle = handle; }
 
   var node = this.store;
   var stem = this.add(path || o.path);
 
-  if(stem){ node = node.children[stem.path]; }
+  if(stem){
+    node = node.children[stem.path];
+    util.defineProperty(node, 'parent', 'w', null);
+    util.defineProperty(node, 'children', 'w', null);
+  } // make sure parent and children are always defined
+
+  if(!o){ return this; }
   Object.keys(o).forEach(function(key){
-    var value = util.clone(o[key], true);
+    var value = o[key];
     if(value === null){ delete node[key]; }
-    else if(this.parses && this.parses[key]){
-      this.parses[key](node, value, o);
-    } else if(util.type(value).plainObject){
-      if(!node.hasOwnProperty(key)){ node[key] = {}; }
+    else if(this.parses[key]){
+      return this.parses[key](node, value, key, o);
+    }
+
+    value = util.clone(value, true);
+    if(util.type(value).plainObject){
+      if(!node.hasOwnProperty(key)){
+        node[key] = {};
+      }
       util.merge(node[key], value);
     } else { node[key] = value; }
   }, this);
@@ -93,54 +113,38 @@ Manifold.prototype.set = function(path, o){
   return this;
 };
 
-// ## manifold.get(path[, options])
+// ## manifold.get([path, options, skip])
 // > get object maching the given path
 //
 // arguments
 //  - `path` type string
 //  - `options` type object with all extra information
+//  - `skip/ref` when type is
+//    - regexp -> property names to skip from parent
+//    - boolean -> ref, return node reference
 //
 // returns the object `node` found
 //
 
-Manifold.prototype.get = function(path, o){
-  o = util.type(o || path).match(/plainObject|function/) || {};
+var skipRE = /children|parent|regex/;
+
+Manifold.prototype.get = function(path, o, s){
+  s = util.type(s || o).regexp || skipRE;
+  o = util.type(o || path).object || {};
 
   var node = this.store;
   var stem = this.match(path, o);
   if(stem){ node = node.children[stem.path]; }
-
   if(o.ref){ return node; }
-
-  return util.merge(o, util.clone(node, true));
-};
-
-// ## manifold.fold(path[, options])
-// > get object maching the given path, inherit from its parent(s)
-//
-// arguments
-//  - `path` type string
-//  - `options` type object with all extra information
-//
-// returns the object `node` found
-//
-
-Manifold.prototype.fold = function(path, o){
-  o = util.type(o || path).match(/plainObject|function/) || {};
-  var node = this.get(path, o);
-  if(o.ref){ return node; }
-
-  var skip = util.type(o.skip).regex || /children|parent/;
 
   while(node){
     for(var key in node){
-      if(skip.test(key) || util.has(o, key)){ continue; }
+      if(util.has(o, key) || s.test(key)){ continue; }
       o[key] = util.clone(node[key], true);
     }
 
-    if(node.parent && node.parent.depth < node.depth){
+    if(node.parent && node.path !== node.parent.path){
       node = node.parent;
-      if(o.ref){ o.parent = node; }
     } else if(node){ node = null; }
   }
 
