@@ -13,7 +13,6 @@ function Manifold(){
 
   this.parses = {};
   this.parse(util.defaultParsers);
-
   util.Parth.call(this);
 }
 util.inherits(Manifold, util.Parth);
@@ -79,13 +78,17 @@ Manifold.prototype.set = function(path, o){
   if(handle){ o = o || {}; o.handle = handle; }
 
   var node = this.store;
-  var stem = this.add(path || o.path);
-
-  if(stem){
+  var stem = util.boil(path || o.path);
+  if(stem && !node.children[stem.path]){
+    this.add(stem.path);
     node = node.children[stem.path];
-    util.defineProperty(node, 'parent', 'w', null);
-    util.defineProperty(node, 'children', 'w', null);
-  } // make sure parent and children are always defined
+    util.defineProperty(node, 'regex', 'w');
+    util.defineProperty(node, 'parent', 'w');
+    util.defineProperty(node, 'children', 'w');
+    // so properties are not copied by accident
+  } else if(stem){
+    node = node.children[stem.path];
+  }
 
   if(!o){ return this; }
   Object.keys(o).forEach(function(key){
@@ -93,47 +96,43 @@ Manifold.prototype.set = function(path, o){
     if(value === null){ delete node[key]; }
     else if(this.parses[key]){
       return this.parses[key](node, value, key, o);
-    }
-
-    value = util.clone(value, true);
-    if(util.type(value).plainObject){
-      if(!node.hasOwnProperty(key)){
-        node[key] = {};
-      }
-      util.merge(node[key], value);
-    } else { node[key] = value; }
+    } else if(util.type(value).plainObject){
+      if(!node[key]){ node[key] = {}; }
+      util.merge(node[key], util.clone(value, true));
+    } else { node[key] = util.clone(value, true); }
   }, this);
 
   return this;
 };
 
-// ## manifold.get([path, options, skip])
+// ## manifold.get([path, options, mod])
 // > get object maching the given path
 //
 // arguments
-//  - `path` type string
-//  - `options` type object with all extra information
-//  - `skip/ref` when type is
-//    - regexp -> property names to skip from parent
-//    - boolean -> ref, return node reference
+//  - `path`, optional, type string
+//  - `options`, optional, type object with all extra information
+//  - `mod`, optional, modifiar depending the type
+//    - boolean true, do not clone, return the node found by reference
+//    - regular expresion, properties to skip on node found
 //
 // returns the object `node` found
 //
-
 var skipRE = /children|parent|regex/;
 
-Manifold.prototype.get = function(path, o, s){
-  s = util.type(s || o).regexp || skipRE;
-  o = util.type(o || path).object || {};
-
-  var node = this.store;
+Manifold.prototype.get = function(path, opt, mod){
+  var o = util.type(opt || path).object || {};
   var stem = this.match(path, o);
+  var node = this.store;
+
   if(stem){ node = node.children[stem.path]; }
-  if(o.ref){ return node; }
+  if((mod || o.ref) === true){ return node; }
+
+  var skip = util.type(mod || opt).regexp || skipRE;
 
   while(node){
     for(var key in node){
-      if(util.has(o, key) || s.test(key)){ continue; }
+      if(skip.test(key)){ continue; }
+      if(util.has(o, key)){ continue; }
       o[key] = util.clone(node[key], true);
     }
 
