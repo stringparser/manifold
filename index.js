@@ -15,12 +15,6 @@ function Manifold(){
   this.parse(util.defaultParsers);
 
   util.Parth.call(this);
-  // > just to make logging pretty
-  Object.defineProperty(this, 'regex', {
-    enumerable: false,
-    value: this.regex
-  });
-
 }
 util.inherits(Manifold, util.Parth);
 
