@@ -28,4 +28,14 @@ module.exports = function(Manifold, util){
     Object.getOwnPropertyDescriptor(getPage, 'children')
       .should.have.property('enumerable', false);
   });
+
+
+  it('should inherit properties from its parent', function(){
+
+    function getHandle(){}
+    app.set('get', getHandle);
+
+    app.get('get /:page')
+      .should.have.property('handle', getHandle);
+  });
 };
