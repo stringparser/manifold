@@ -127,7 +127,7 @@ Manifold.prototype.get = function(path, opt, mod){
   if(stem){ node = node.children[stem.path]; }
   if((mod || o.ref) === true){ return node; }
 
-  var skip = util.type(mod || opt).regexp || skipRE;
+  var skip = util.type(mod || o).regexp || skipRE;
 
   while(node){
     for(var key in node){
