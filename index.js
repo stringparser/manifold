@@ -14,102 +14,6 @@ function Manifold(){
 }
 util.inherits(Manifold, util.Parth);
 
-// ## manifold.set(path[, options])
-// setup path hierachy via regexes
-//
-// arguments
-//  - `path` type string, function or plainObject
-//  - `options` type function or plainObject
-//
-// returns this
-//
-Manifold.prototype.set = function(path, o){
-  var pis = util.type(path), ois = util.type(o);
-  if(!pis.match(/string|function|plainObject/)){
-    throw new TypeError('set(path/options [, options]) '+
-      '`path/options`, should be:' +
-      ' - string (path)  ' +
-      ' - function or plainObject (options)'
-    );
-  }
-
-  o = ois.plainObject || pis.plainObject || {};
-  var handle = pis.function || ois.function;
-  if(handle){ o.handle = handle; }
-
-  var node = this.store;
-  var stem = util.boil(path || o.path);
-
-  if(stem && !node.children[stem.path]){
-    this.add(stem.path);
-    var master = this.regex.master;
-    var group = master.source.match(/\(+\^.*?\)+(?=\||$)/g);
-
-    this.regex.forEach(function(re, index, regex){
-      var found = util.exclude(group[index], master).exec(re.path);
-      if(!found){ return ; }
-      found = regex[found.indexOf(found.shift())];
-      var child = node.children[re.path];
-      var parent = node.children[found.path];
-
-      if((re.depth-1) === parent.regex.depth){
-        util.defineProperty(parent, 'children', 'w', {});
-        if(!parent.children[re.path]){
-          parent.children[re.path] = child;
-        }
-        util.defineProperty(child, 'parent', 'w', parent);
-      }
-    });
-  }
-
-  if(stem){ node = node.children[stem.path]; }
-  Object.keys(o).forEach(function(key){
-    var value = util.clone(o[key], true);
-    if(value === null){ delete node[key]; }
-    else if(this.parses && this.parses[key]){
-      this.parses[key](node, value, o);
-    } else if(util.type(value).plainObject){
-      if(!node.hasOwnProperty(key)){ node[key] = {}; }
-      util.merge(node[key], value);
-    } else { node[key] = value; }
-  }, this);
-
-  return this;
-};
-
-// ## manifold.get(path[, options])
-// > find object maching using a previously set path
-//
-// arguments
-//  - `path` type string
-//  - `options` type object with all extra information
-//
-// returns the object `node` found
-//
-
-Manifold.prototype.get = function(path, o){
-  o = util.type(o || path).match(/plainObject|function/) || {};
-
-  var node = this.store;
-  var stem = this.match(path, o);
-  if(stem){ node = node.children[stem.path]; }
-
-  if(o.ref){ return node; }
-
-  while(node){
-    for(var key in node){
-      if(o.hasOwnProperty(key)){ continue; }
-      o[key] = util.clone(node[key], true);
-    }
-
-    if(node.parent && node.parent.depth < node.depth){
-      node = node.parent;
-    } else if(node){ node = null; }
-  }
-
-  return o;
-};
-
 // ## manifold.parse(prop[, parser])
 // > parse properties before they are set
 //
@@ -146,4 +50,99 @@ Manifold.prototype.parse = function(prop, parser){
   };
 
   return this;
+};
+
+// ## manifold.set(path[, options])
+// setup path hierachy via regexes
+//
+// arguments
+//  - `path` type string, function or plainObject
+//  - `options` type function or plainObject
+//
+// returns this
+//
+Manifold.prototype.set = function(path, o){
+  var pis = util.type(path), ois = util.type(o);
+  if(!pis.match(/string|function|plainObject/)){
+    throw new TypeError('set(path/options [, options]) '+
+      '`path/options`, should be:' +
+      ' - string (path)  ' +
+      ' - function or plainObject (options)'
+    );
+  }
+
+  o = ois.plainObject || pis.plainObject || {};
+  var handle = pis.function || ois.function;
+  if(handle){ o.handle = handle; }
+
+  var node = this.store;
+  var stem = this.add(path || o.path);
+
+  if(stem){ node = node.children[stem.path]; }
+  Object.keys(o).forEach(function(key){
+    var value = util.clone(o[key], true);
+    if(value === null){ delete node[key]; }
+    else if(this.parses && this.parses[key]){
+      this.parses[key](node, value, o);
+    } else if(util.type(value).plainObject){
+      if(!node.hasOwnProperty(key)){ node[key] = {}; }
+      util.merge(node[key], value);
+    } else { node[key] = value; }
+  }, this);
+
+  return this;
+};
+
+// ## manifold.get(path[, options])
+// > get object maching the given path
+//
+// arguments
+//  - `path` type string
+//  - `options` type object with all extra information
+//
+// returns the object `node` found
+//
+
+Manifold.prototype.get = function(path, o){
+  o = util.type(o || path).match(/plainObject|function/) || {};
+
+  var node = this.store;
+  var stem = this.match(path, o);
+  if(stem){ node = node.children[stem.path]; }
+
+  if(o.ref){ return node; }
+
+  return util.merge(o, util.clone(node, true));
+};
+
+// ## manifold.fold(path[, options])
+// > get object maching the given path, inherit from its parent(s)
+//
+// arguments
+//  - `path` type string
+//  - `options` type object with all extra information
+//
+// returns the object `node` found
+//
+
+Manifold.prototype.fold = function(path, o){
+  o = util.type(o || path).match(/plainObject|function/) || {};
+  var node = this.get(path, o);
+  if(o.ref){ return node; }
+
+  var skip = util.type(o.skip).regex || /children|parent/;
+
+  while(node){
+    for(var key in node){
+      if(skip.test(key) || util.has(o, key)){ continue; }
+      o[key] = util.clone(node[key], true);
+    }
+
+    if(node.parent && node.parent.depth < node.depth){
+      node = node.parent;
+      if(o.ref){ o.parent = node; }
+    } else if(node){ node = null; }
+  }
+
+  return o;
 };
