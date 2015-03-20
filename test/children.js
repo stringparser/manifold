@@ -8,6 +8,39 @@ module.exports = function(Manifold, util){
     sample.forEach(app.set.bind(app));
   });
 
+  it('should support single object as input', function(){
+    app.set('single.parent', {children: {path: 'one'}})
+       .get('single.parent', {ref: true})
+       .should.have.property('children', {
+         one: {path: 'one'}
+       });
+  });
+
+  it('should support array as input', function(){
+
+    var stringarray = ['one', 'two', 'three'];
+    app.set('string.parent', {children: stringarray})
+      .get('string.parent', {ref: true})
+      .should.have.property('children', {
+        'one': {path: 'one'},
+        'two': {path: 'two'},
+        'three': {path: 'three'}
+      });
+
+    function fn(){} fn.path = 'one';
+    var po = {path: 'three'};
+    var re = {path: 'two', prop: 'here'};
+
+    var objectarray = [fn, re, po];
+    app.set('object.parent', {children: objectarray})
+      .get('object.parent', {ref: true})
+      .should.have.property('children', {
+        one : {path: 'one', handle: fn},
+        two : re,
+        three : po
+      });
+  });
+
   it('should have parent added after children were set', function(){
     ;['get /', 'get page.', 'get /:page'].forEach(function(item){
       app.set('get', {children: app.get(item)});
@@ -30,7 +63,7 @@ module.exports = function(Manifold, util){
   });
 
 
-  it('should inherit properties from its parent', function(){
+  it('should inherit from parent when', function(){
 
     function getHandle(){}
     app.set('get', getHandle);

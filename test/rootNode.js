@@ -7,22 +7,27 @@ module.exports = function(Manifold, util){
   var sample = util.sample();
   it('add test data', function(){
     sample.forEach(app.set.bind(app));
-    app.set(rootHandle).get()
+    app.set(rootHandle);
+  });
+
+  it('should have properties ({ref: true})', function(){
+    app.get({ref: true})
       .should.have.property('handle', rootHandle);
   });
 
-  it('should have properties {ref: true}', function(){
+  it('should have properties ({ref: true})', function(){
     app.get({ref: true})
       .should.have.property('children');
   });
 
-  it('should not have properties {ref: true}', function(){
+  it('should not have properties ({ref: true})', function(){
     app.get({ref: true})
-      .should.not.have.property(['parent', 'depth']);
+      .should.not.have.property(['path', 'parent']);
   });
 
-  it('should have properties {ref: undefined}', function(){
-    app.get().should.have.properties(['handle']);
+  it('should have properties ({ref: true})', function(){
+    app.get()
+      .should.have.properties(['handle', 'notFound']);
   });
 
 };

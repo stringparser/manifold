@@ -10,7 +10,7 @@ module.exports = function(Manifold, util){
 
   it('should have children added after parent is set', function(){
     ;['get /', 'get page.', 'get /:page'].forEach(function(item){
-      app.set(item, {parent: app.get('get')});
+      app.set(item, {parent: 'get'});
     });
 
     app.get('get', {ref: true})
