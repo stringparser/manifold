@@ -3,7 +3,7 @@
 module.exports = function(Manifold, util){
   var app = new Manifold();
 
-  it('test data', function(){
+  it('add test data', function(){
     util.sample().forEach(app.set.bind(app));
   });
 
