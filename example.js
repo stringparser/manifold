@@ -43,7 +43,9 @@ app.set('get', function getHandle(){});
 
 app.set({name: 'test'});
 
-app.set('get /:page/:view', function getPageView(){});
+app.set('get /:page/:view', {parent: app.get('get')});
 
 console.log(app.get('get /user/profile'));
-console.log(app.store);
+console.log(app.get('get'));
+
+console.log(app);
