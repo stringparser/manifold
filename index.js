@@ -66,10 +66,11 @@ Manifold.prototype.parse = function(prop, parser){
 Manifold.prototype.set = function(path, o){
   var pis = util.type(path), ois = util.type(o);
   if(!pis.match(/string|function|plainObject/)){
-    throw new TypeError('set(path/options [, options]) '+
-      '`path/options`, should be:' +
-      ' - string (path)  ' +
-      ' - function or plainObject (options)'
+    throw new TypeError('set(path/options [, options]). '+
+      'Unsupported type for path/options.\n\n'+
+      'Supported types are:\n'+
+      ' - string (path)\n' +
+      ' - plainObject (options)\n'
     );
   }
 
@@ -106,14 +107,14 @@ Manifold.prototype.set = function(path, o){
 };
 
 // ## manifold.get([path, options, mod])
-// > get object maching the given path
+// > get object maching the given path, clone it if necessary
 //
 // arguments
 //  - `path`, optional, type string
 //  - `options`, optional, type object with all extra information
-//  - `mod`, optional, modifiar depending the type
-//    - boolean true, do not clone, return the node found by reference
-//    - regular expresion, properties to skip on node found
+//  - `mod`, type object if is a
+//    - regular expresion, props to skip while cloning found node
+//    - plainObject with property ref, the node found will not be cloned
 //
 // returns the object `node` found
 //
@@ -121,13 +122,15 @@ var skipRE = /children|parent|regex/;
 
 Manifold.prototype.get = function(path, opt, mod){
   var o = util.type(opt || path).object || {};
+  mod = mod || o;
+
   var stem = this.match(path, o);
   var node = this.store;
 
   if(stem){ node = node.children[stem.path]; }
-  if((mod || o.ref) === true){ return node; }
+  if(mod && mod.ref){ return node; }
 
-  var skip = util.type(mod || o).regexp || skipRE;
+  var skip = util.type(mod).regexp || skipRE;
 
   while(node){
     for(var key in node){
@@ -136,9 +139,9 @@ Manifold.prototype.get = function(path, opt, mod){
       o[key] = util.clone(node[key], true);
     }
 
-    if(node.parent && node.path !== node.parent.path){
+    if(node !== node.parent){
       node = node.parent;
-    } else if(node){ node = null; }
+    }
   }
 
   return o;
