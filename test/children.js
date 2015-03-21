@@ -8,9 +8,17 @@ module.exports = function(Manifold, util){
     sample.forEach(app.set.bind(app));
   });
 
+  it('should support single string as input', function(){
+    app.set('single.string.parent', {children: 'one'})
+       .get('single.string.parent', {ref: true})
+       .should.have.property('children', {
+         one: {path: 'one'}
+       });
+  });
+
   it('should support single object as input', function(){
-    app.set('single.parent', {children: {path: 'one'}})
-       .get('single.parent', {ref: true})
+    app.set('single.object.parent', {children: {path: 'one'}})
+       .get('single.object.parent', {ref: true})
        .should.have.property('children', {
          one: {path: 'one'}
        });
@@ -41,7 +49,7 @@ module.exports = function(Manifold, util){
       });
   });
 
-  it('should have parent added after children were set', function(){
+  it('support app.get for children', function(){
     ;['get /', 'get page.', 'get /:page'].forEach(function(item){
       app.set('get', {children: app.get(item)});
     });
