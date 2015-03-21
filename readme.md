@@ -18,6 +18,7 @@ Map _strings_ via _regular expressions_ to _objects_ |
 
 ```js
 var Manifold = require('mainfold');
+var app = new Manifold();
 
 app.set('get /user/:page(\\d+)', {
   parent: 'get /user',
