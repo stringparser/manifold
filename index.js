@@ -12,7 +12,7 @@ function Manifold(){
   }
 
   this.parses = {};
-  this.parse(util.defaultParsers);
+  this.parse(util.defaultParsers.prop);
   util.Parth.call(this);
 }
 util.inherits(Manifold, util.Parth);
