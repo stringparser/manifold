@@ -24,9 +24,11 @@ module.exports = {
   },
   testSuite : function(){
     var testSuite = fs.readdirSync(__dirname);
+
     // first tests
     var first = [
       'sample.js',
+      'parse.js',
       'rootNode.js',
       'parent.js',
       'children.js'
