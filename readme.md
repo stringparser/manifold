@@ -1,6 +1,5 @@
 # manifold [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
 
-Map _strings_ via _regular expressions_ to _objects_ |
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
@@ -8,10 +7,11 @@ Map _strings_ via _regular expressions_ to _objects_ |
 [why](#why)
 
 
-
-<a href="http://en.wikipedia.org/wiki/Lie_group">
-  <img height=400 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/400px-E8Petrie.svg.png"/>
-</a>
+<p align="center">
+  <a href="http://en.wikipedia.org/wiki/Lie_group">
+    <img height=400 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/400px-E8Petrie.svg.png"/>
+  </a>
+</p>
 
 
 ## sample
