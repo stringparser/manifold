@@ -19,7 +19,7 @@ Map _strings_ via _regular expressions_ to _objects_ |
 ```js
 var Manifold = require('mainfold');
 
-app.set('get /user/:page', {
+app.set('get /user/:page(\\d+)', {
   parent: 'get /user',
   handle: function getUserPage(){};
 });
@@ -33,7 +33,7 @@ app.set('get /user', {
   }
 });
 
-app.get('get /user/profile'); // =>
+app.get('get /user/10'); // =>
 {
   notFound: false,
   path: 'get /user/10',
