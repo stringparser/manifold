@@ -64,7 +64,7 @@ In all the following `node` refers to the `object` mapping path to object.
 ### manifold.parse(prop[, parser])
 > parse `node` properties _before_ they are set
 
-The method sets a parser for latter usage in [`manifold.set([path, options]`](#manifoldaddpath-opt). The parser function will be invoked when  `options` of that #set method has a property named `prop`.
+The method sets a parser for latter usage in [`manifold.set([path, options]`](#manifoldsetpath-options). The parser function will be invoked when  `options` of that #set method has a property named `prop`.
 
 _arguments_
  - `prop`, type string or object with one function per key
@@ -94,7 +94,7 @@ app.set({number: 0, string: '  hello'})
 
 ### `parser` arguments
 
-Arguments passed from [manifold.set](#manifoldaddpath-opt) to the parser are:
+Arguments passed from [manifold.set](#manifoldsetpath-options) to the parser are:
  - `node`, type object, the current `node` being set
  - `value`, type unkown, `options[prop]` of
  - `key`, type string, property `name` being parsed (equal to `prop` at the moment)
