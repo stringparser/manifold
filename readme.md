@@ -16,7 +16,33 @@ Map _strings_ via _regular expressions_ to _objects_ ----
 ## sample
 
 ```js
+var Manifold = require('mainfold');
 
+app.set('get /user/:page', {
+  parent: 'get /user',
+  handle: function getUserPage(){};
+});
+
+app.set('get /user', {
+  picture: function getPicture(){
+    // fetch that thing
+  },
+  render: function markup(){
+    // you know, some markup
+  }
+});
+
+app.get('get /user/profile'); // =>
+{
+  notFound: false,
+  path: 'get /user',
+  url: '/user/10',
+  match: 'get /user/10',
+  params: { _: [ 'page' ], page: '10' },
+  handle: [Function: getUserPage],
+  picture: [Function: getPicture],
+  render: [Function: markup]
+}
 ```
 
 ## documentation
