@@ -118,7 +118,7 @@ Manifold.prototype.set = function(path, o){
 //
 // returns the object `node` found
 //
-var skipRE = /children|parent|regex/;
+//var skipRE = /children|parent|regex/;
 
 Manifold.prototype.get = function(path, opt, mod){
   var o = util.type(opt || path).object || {};
@@ -130,17 +130,19 @@ Manifold.prototype.get = function(path, opt, mod){
   if(stem){ node = node.children[stem.path]; }
   if(mod && mod.ref){ return node; }
 
-  var skip = util.type(mod).regexp || skipRE;
-
-  while(node){
-    for(var key in node){
-      if(skip.test(key) || util.has(o, key)){ continue; }
+  function whilst(node){
+    Object.keys(node).forEach(function(key){
+      if(o[key] !== void 0){ return ; }
       o[key] = util.clone(node[key], true);
-    }
+    });
+
     if(node !== node.parent){
       node = node.parent;
     }
+    if(node){ whilst(node); }
   }
+
+  whilst(node);
 
   return o;
 };
