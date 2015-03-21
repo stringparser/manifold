@@ -86,7 +86,7 @@ Manifold.prototype.set = function(path, o){
     util.defineProperty(node, 'regex', 'w');
     util.defineProperty(node, 'parent', 'w');
     util.defineProperty(node, 'children', 'w');
-    // so properties are not copied by accident
+    // so these are not deep copied
   } else if(stem){
     node = node.children[stem.path];
   }
@@ -134,11 +134,9 @@ Manifold.prototype.get = function(path, opt, mod){
 
   while(node){
     for(var key in node){
-      if(skip.test(key)){ continue; }
-      if(util.has(o, key)){ continue; }
+      if(skip.test(key) || util.has(o, key)){ continue; }
       o[key] = util.clone(node[key], true);
     }
-
     if(node !== node.parent){
       node = node.parent;
     }
