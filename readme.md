@@ -36,7 +36,7 @@ app.set('get /user', {
 app.get('get /user/profile'); // =>
 {
   notFound: false,
-  path: 'get /user',
+  path: 'get /user/10',
   url: '/user/10',
   match: 'get /user/10',
   params: { _: [ 'page' ], page: '10' },
@@ -126,12 +126,16 @@ app.set('get /user/:page(\\d+)', function getUserPage(){
 
 app.get('get /user/10');
 // =>
-{ notFound: false,
-  path: 'get /user/:page(\\d+)',
+{
+  notFound: false,
+  path: 'get /user/10',
   url: '/user/10',
   match: 'get /user/10',
   params: { _: [ 'page' ], page: '10' },
-  handle: [Function: getUserPage] }
+  handle: [Function: getUserPage],
+  picture: [Function: getPicture],
+  render: [Function: markup]
+}
 
 ```
 
