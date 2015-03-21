@@ -4,7 +4,7 @@ var util = require('./lib/util');
 
 exports = module.exports = Manifold;
 
-// # Manifold constructor
+// # module.exports
 //
 function Manifold(){
   if(!(this instanceof Manifold)){
@@ -18,7 +18,7 @@ function Manifold(){
 util.inherits(Manifold, util.Parth);
 
 // ## manifold.parse(prop[, parser])
-// > parse properties before they are set
+// > parse node properties before they are set
 //
 // arguments
 //  - prop, type `string` or `object` with all parsers
