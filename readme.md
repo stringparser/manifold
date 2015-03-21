@@ -1,6 +1,6 @@
 # manifold [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
 
-Map _strings_ via _regular expressions_ to _objects_ | 
+Map _strings_ via _regular expressions_ to _objects_ |
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
@@ -216,49 +216,35 @@ $ npm test
 ```
 ➜  manifold (master) ✓ npm test
 manifold
-  rootNode
-    ✓ should have property name  
-    ✓ should have rootHandle
-    ✓ should have completion
-    ✓ should have aliases
-  path
-    ✓ should have proper pathname
-  depth
-    ✓ should have proper depth
-    ✓ should have proper depth when using :params
-  parent
-    ✓ should have its parent
-    ✓ should have its parent
-  handle
-    ✓ handle for the rootNode
-    ✓ handle for a command
-    ✓ only last element should have handle
-  aliases
-    ✓ should redirect to node for each alias
-    ✓ should have its parent via aliases
-    ✓ should work with params
-  children
-    ✓ should create nested structures
-    ✓ should be able to create nested using :params structure
-  boil
-    ✓ should change how stems are boiled
+  sample
+    ✓ data creation should not fail
+    ✓ sample data should be random
   parse
-    ✓ should change how output gets parsed
+    ✓ add test data
+    ✓ should parse properties when one sets them
+    ✓ should support objects for setting parsers
+  rootNode
+    ✓ add test data
+    ✓ should have properties ({ref: true})
+    ✓ should have properties ({ref: true})
+    ✓ should not have properties ({ref: true})
+    ✓ should have properties ({ref: true})
+  parent
+    ✓ add test data
+    ✓ should have children added after parent is set
+    ✓ should have the same parent by reference
+    ✓ property should not be enumerable after overwrite
+  children
+    ✓ add test data
+    ✓ should support single object as input
+    ✓ should support array as input
+    ✓ should have parent added after children were set
+    ✓ should not be enumerable after overwrite
+    ✓ should inherit from parent when
 
-19 passing (42ms)
+
+20 passing (35ms)
 ```
-
-### Glossary
-
- Names for things that are long to write
-
-#### rootNode
-
- `manifold.store` property
-
-### todo
-
-- [ ] add support to regexp paths
 
 ### license
 
