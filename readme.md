@@ -4,7 +4,7 @@
 [examples](#examples) -
 [install](#install) -
 [todo](#todo) -
-[why](#why)
+[not a real horse](#why)
 
 
 <p align="center">
@@ -76,7 +76,7 @@ _returns_
 
 _sample_
 ```js
-app.parse({
+manifold.parse({
   number: function(node, value, key, opt){
     node.number = value + 2;
   },
@@ -85,7 +85,8 @@ app.parse({
   }
 });
 
-app.set({number: 0, string: '  hello'})
+manifold
+   .set({number: 0, string: '  hello'})
    .get(); // =>
 
 { notFound: true, number: 2, string: 'hello' }
@@ -94,7 +95,7 @@ app.set({number: 0, string: '  hello'})
 
 ### `parser` arguments
 
-Arguments passed from [manifold.set](#manifoldsetpath-options) to the parser are:
+Arguments, passed from [manifold.set](#manifoldsetpath-props) to the parser are:
  - `node`, type object, the current `node` being set
  - `value`, type unkown, `options[prop]` of
  - `key`, type string, property `name` being parsed (equal to `prop` at the moment)
@@ -105,27 +106,27 @@ Arguments passed from [manifold.set](#manifoldsetpath-options) to the parser are
 
 There are [default property parsers defined](./lib/defaultParsers.js). One for `options.parent` and another one for `options.children`. Both work together to help and define inheritance when using [`manifold.get`](#manifoldgetpath-options-mod) _only_ if so specified.
 
-## manifold.set([path, options])
-> set a path to regex mapping
+## manifold.set([path, props])
+> set a path to regex mapping for an object
 
 _arguments_
 - `path` type string
 
-- `options` type function or plainObject
- - when is a function it will be assigned to the `options.handle`
- - when is a plainObject, all option properties are passed first to a `parser` if there is one and if not, that property is cloned and assigned to the node
+- `props` type function or plainObject
+ - when is a function it will be assigned to the `props.handle`
+ - when is a plainObject, all option properties are passed first to a `parser` if there is one and if not, that property is cloned and assigned to the node props
 
 _returns_ this
 
-The path is taken as a regular expression using the  [parth](http://github.com/stringparser/parth) module with the usual conventions about paths. So you know... interesting things can happen:
+The path is taken as a regular expression using the  [parth](http://github.com/stringparser/parth) module, which uses the usual conventions on for path to regexp parsing. So you know... interesting things can happen.
 
 _samples_
 ```js
-app.set('get /user/:page(\\d+)', function getUserPage(){
+manifold.set('get /user/:page(\\d+)', function getUserPage(){
   // do stuff
 });
 
-app.get('get /user/10');
+manifold.get('get /user/10');
 // =>
 {
   notFound: false,
@@ -133,9 +134,7 @@ app.get('get /user/10');
   url: '/user/10',
   match: 'get /user/10',
   params: { _: [ 'page' ], page: '10' },
-  handle: [Function: getUserPage],
-  picture: [Function: getPicture],
-  render: [Function: markup]
+  handle: [Function: getUserPage]
 }
 
 ```
@@ -143,7 +142,7 @@ app.get('get /user/10');
 _a use case for a parser_
 ```js
 var myLib = require('myLib');
-app.parse('handle', function(node, value, key, opt){
+manifold.parse('handle', function(node, value, key, opt){
   var handle = value;
   node.handle = function (/* arguments*/){
     return handle.apply(myLib, arguments);
@@ -157,22 +156,22 @@ app.parse('handle', function(node, value, key, opt){
 _arguments_
  - `path`, optional, type string
  - `options`, optional, type object with all extra information
- - `mod`, type object. If is a
+ - `mod`, type object. If is a:
    - plainObject with property ref, the node found will not be cloned
    - regular expression, are the props to skip while cloning
 
 _returns_ the object (cloned/by reference) `node` found
 
-In addition if the node has a parent it will inherit its properties while cloning.
+In addition, if the node has a parent it will inherit its properties while cloning.
 
 _sample_
 ```js
-app.set('get /user/:page', {
+manifold.set('get /user/:page', {
   parent: 'get /user',
   handle: function getUserPage(){};
 });
 
-app.set('get /user', {
+manifold.set('get /user', {
   picture: function getPicture(){
     // fetch that thing
   },
@@ -181,10 +180,10 @@ app.set('get /user', {
   }
 });
 
-app.get('get /user/profile'); // =>
+manifold.get('get /user/10'); // =>
 {
   notFound: false,
-  path: 'get /user',
+  path: 'get /user/10',
   url: '/user/10',
   match: 'get /user/10',
   params: { _: [ 'page' ], page: '10' },
@@ -194,10 +193,11 @@ app.get('get /user/profile'); // =>
 }
 ```
 
-## Manifold instance properties
+## instance properties
 
-- manifold.store: key value store for all your stuff
-- manifold.regex: all regexes are stored here
+- `manifold.parses`: property parsers are stored here
+- `manifold.store`: key value store with all of the nodes stored
+- `manifold.regex`: regexes are stored here
 
 ## why
 
