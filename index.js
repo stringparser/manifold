@@ -91,7 +91,7 @@ Manifold.prototype.set = function(path, o){
   }
 
   o = ois.plainObject || pis.plainObject || '';
-  var handle = pis.function || ois.function;
+  var handle = pis.function || ois.function || util.type(o.handle).function;
   if(handle){ o = o || {}; o.handle = handle; }
 
   var node = this.store;
