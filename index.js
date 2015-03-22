@@ -4,8 +4,9 @@ var util = require('./lib/util');
 
 exports = module.exports = Manifold;
 
-// # module.exports
-//
+/*
+  ## module.exports 
+*/
 function Manifold(){
   if(!(this instanceof Manifold)){
     return new Manifold();
@@ -17,17 +18,17 @@ function Manifold(){
 }
 util.inherits(Manifold, util.Parth);
 
-// ## manifold.parse(prop[, parser])
-// > parse node properties before they are set
-//
-// arguments
-//  - prop, type `string` or `object` with all parsers
-//  - parser, optional, type `function`
-//
-// returns
-//  - parser for less than two arguments
-//  - this for two arguments
-//
+/* ## manifold.parse(prop[, parser])
+> parse node properties before they are set
+
+arguments
+  - prop, type `string` or `object` with all parsers
+  - parser, optional, type `function`
+
+returns
+  - parser for less than two arguments
+  - this for two arguments
+*/
 Manifold.prototype.parse = function(prop, parser){
   var propis = util.type(prop);
   if(propis.plainObject){
@@ -54,15 +55,16 @@ Manifold.prototype.parse = function(prop, parser){
   return this;
 };
 
-// ## manifold.set(path[, options])
-// setup path hierachy via regexes
-//
-// arguments
-//  - `path` type string, function or plainObject
-//  - `options` type function or plainObject
-//
-// returns this
-//
+/* ## manifold.set(path[, options])
+setup path hierachy via regexes
+
+arguments
+  - `path` type string, function or plainObject
+  - `options` type function or plainObject
+
+returns this
+*/
+
 Manifold.prototype.set = function(path, o){
   var pis = util.type(path), ois = util.type(o);
   if(!pis.match(/string|function|plainObject/)){
@@ -106,19 +108,21 @@ Manifold.prototype.set = function(path, o){
   return this;
 };
 
-// ## manifold.get([path, options, mod])
-// > get object maching the given path, clone it if necessary
-//
-// arguments
-//  - `path`, optional, type string
-//  - `options`, optional, type object with all extra information
-//  - `mod`, type object if is a
-//    - regular expresion, props to skip while cloning found node
-//    - plainObject with property ref, the node found will not be cloned
-//
-// returns the object `node` found
-//
-//var skipRE = /children|parent|regex/;
+/*
+## manifold.get([path, options, mod])
+> get object maching the given path, clone it if necessary
+
+arguments
+ - `path`, optional, type string
+ - `options`, optional, type object with all extra information
+ - `mod`, type object if is a
+   - regular expresion, props to skip while cloning found node
+   - plainObject with property ref, the node found will not be cloned
+
+returns the object `node` found
+
+var skipRE = /children|parent|regex/;
+*/
 
 Manifold.prototype.get = function(path, opt, mod){
   var o = util.type(opt || path).object || {};
