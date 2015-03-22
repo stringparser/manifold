@@ -13,8 +13,9 @@ function Manifold(){
   }
 
   this.parses = {};
-  this.parse(util.defaultParsers.prop);
   util.Parth.call(this);
+  this.parse(util.defaultParsers.prop);
+  util.defineProperty(this.store, 'children', '', {});
 }
 util.inherits(Manifold, util.Parth);
 
@@ -100,7 +101,7 @@ Manifold.prototype.set = function(path, o){
     this.add(stem.path);
     node = node.children[stem.path];
     util.defineProperty(node, 'regex', 'w');
-    util.defineProperty(node, 'parent', 'w');
+    util.defineProperty(node, 'parent', 'w', this.store);
     util.defineProperty(node, 'children', 'w');
     // so these are not deep copied
   } else if(stem){
