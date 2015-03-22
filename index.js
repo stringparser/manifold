@@ -5,7 +5,7 @@ var util = require('./lib/util');
 exports = module.exports = Manifold;
 
 /*
-  ## module.exports 
+  ## module.exports
 */
 function Manifold(){
   if(!(this instanceof Manifold)){
@@ -18,16 +18,21 @@ function Manifold(){
 }
 util.inherits(Manifold, util.Parth);
 
-/* ## manifold.parse(prop[, parser])
-> parse node properties before they are set
+/* ### manifold.parse(prop[, parser])
+> parse `node` properties _before_ they are set
 
-arguments
-  - prop, type `string` or `object` with all parsers
-  - parser, optional, type `function`
+The method sets a parser for latter usage in
+[`manifold.set([path, props]`](#manifoldsetpath-props).
+The parser function will be invoked when  `props`
+of that #set method has a property named `prop`.
 
-returns
-  - parser for less than two arguments
-  - this for two arguments
+_arguments_
+ - `prop`, type string or object with one function per key
+ - `parser`, optional, type `function`
+
+_returns_
+ - `parser` for less than two arguments
+ - `this` for two arguments
 */
 Manifold.prototype.parse = function(prop, parser){
   var propis = util.type(prop);
@@ -55,14 +60,23 @@ Manifold.prototype.parse = function(prop, parser){
   return this;
 };
 
-/* ## manifold.set(path[, options])
-setup path hierachy via regexes
+/* ## manifold.set([path, props])
+> set a path to regex mapping for an object
 
-arguments
-  - `path` type string, function or plainObject
-  - `options` type function or plainObject
+_arguments_
+- `path` type string
+- `props` type function or plainObject
+ - when is a function it will be assigned to the `options.handle`
+ - when is a plainObject, all option properties
+   are passed first to a `parser` if there is one and if not,
+  that property is cloned and assigned to the node props
 
-returns this
+_returns_ this
+
+The path is taken as a regular expression
+using the [parth](http://github.com/stringparser/parth) module,
+which uses the usual conventions on for path to regexp parsing.
+So you know... interesting things can happen.
 */
 
 Manifold.prototype.set = function(path, o){
@@ -110,16 +124,19 @@ Manifold.prototype.set = function(path, o){
 
 /*
 ## manifold.get([path, options, mod])
-> get object maching the given path, clone it if necessary
+> get an object matching the given path, clone it if necessary
 
-arguments
+_arguments_
  - `path`, optional, type string
  - `options`, optional, type object with all extra information
- - `mod`, type object if is a
-   - regular expresion, props to skip while cloning found node
+ - `mod`, type object. If is a:
    - plainObject with property ref, the node found will not be cloned
+   - regular expression, are the props to skip while cloning
 
-returns the object `node` found
+_returns_ the object (cloned/by reference) `node` found
+
+In addition, if the node has a parent it will inherit its
+properties while cloning.
 
 var skipRE = /children|parent|regex/;
 */
