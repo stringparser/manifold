@@ -113,7 +113,7 @@ Manifold.prototype.set = function(path, o){
     var value = o[key];
     if(value === null){ delete node[key]; }
     else if(this.parses[key]){
-      return this.parses[key](node, value, key, o);
+      return this.parses[key](node, value, o);
     } else if(util.type(value).plainObject){
       if(!node[key]){ node[key] = {}; }
       util.merge(node[key], util.clone(value, true));
@@ -139,8 +139,9 @@ _returns_ the object (cloned/by reference) `node` found
 In addition, if the node has a parent it will inherit its
 properties while cloning.
 
-var skipRE = /children|parent|regex/;
 */
+
+var skipRE = /children|parent|regex/;
 
 Manifold.prototype.get = function(path, opt, mod){
   var o = util.type(opt || path).object || {};
@@ -152,19 +153,19 @@ Manifold.prototype.get = function(path, opt, mod){
   if(stem){ node = node.children[stem.path]; }
   if(mod && mod.ref){ return node; }
 
-  function whilst(node){
+  function whilst(){
     Object.keys(node).forEach(function(key){
-      if(o[key] !== void 0){ return ; }
+      if(skipRE.test(key) || o[key] !== void 0){ return ; }
       o[key] = util.clone(node[key], true);
     });
 
     if(node !== node.parent){
       node = node.parent;
     }
-    if(node){ whilst(node); }
+    if(node){ whilst(); }
   }
 
-  whilst(node);
+  whilst();
 
   return o;
 };
