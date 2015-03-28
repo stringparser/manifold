@@ -100,7 +100,6 @@ Manifold.prototype.set = function(path, o){
   if(stem && !node.children[stem.path]){
     this.add(stem.path);
     node = node.children[stem.path];
-    util.defineProperty(node, 'regex', 'w');
     util.defineProperty(node, 'parent', 'w', this.store);
     util.defineProperty(node, 'children', 'w');
     // so these are not deep copied
@@ -141,7 +140,7 @@ properties while cloning.
 
 */
 
-var skipRE = /children|parent|regex/;
+var skipRE = /children|parent/;
 
 Manifold.prototype.get = function(path, opt, mod){
   var o = util.type(opt || path).object || {};
