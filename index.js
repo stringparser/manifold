@@ -36,8 +36,8 @@ _returns_
  - `this` for two arguments
 */
 Manifold.prototype.parse = function(prop, parser){
-  var propis = util.type(prop);
-  if(propis.plainObject){
+  var propType = util.type(prop);
+  if(propType.plainObject && !parser){
     return Object.keys(prop).forEach(function(key){
       return this.parse(key, prop[key]);
     }, this);
@@ -45,7 +45,7 @@ Manifold.prototype.parse = function(prop, parser){
 
   if(!parser && this.parses){
     return prop ? this.parses[prop] : util.parse;
-  } else if(!propis.string){
+  } else if(!propType.string){
     throw new TypeError('parse(prop[, parser])\n'+
       ' `prop` should be a string');
   } else if(typeof parser !== 'function'){
@@ -54,7 +54,7 @@ Manifold.prototype.parse = function(prop, parser){
   }
 
   var self = this;
-  this.parses[prop] = function(/* arguments */){
+  this.parses[prop] = function propParser(/* arguments */){
     return parser.apply(self, arguments);
   };
 
@@ -80,9 +80,8 @@ which uses the usual conventions on for path to regexp parsing.
 So you know... interesting things can happen.
 */
 
-Manifold.prototype.set = function(path, o){
-  var pis = util.type(path), ois = util.type(o);
-  if(!pis.match(/string|function|plainObject/)){
+Manifold.prototype.set = function(path, opt){
+  if(!util.type(path).match(/string|function|plainObject/)){
     throw new TypeError('set(path/options [, options]). '+
       'Unsupported type for path/options.\n\n'+
       'Supported types are:\n'+
@@ -91,9 +90,12 @@ Manifold.prototype.set = function(path, o){
     );
   }
 
-  o = ois.plainObject || pis.plainObject || '';
-  var handle = pis.function || ois.function || util.type(o.handle).function;
-  if(handle){ o = o || {}; o.handle = handle; }
+  var oType = util.type(opt || path);
+  var o = oType.plainObject || '';
+  if(oType.function || util.type(o.handle).function){
+    o = o || {};
+    o.handle = oType.function || o.handle;
+  }
 
   var node = this.store;
   var stem = util.boil(path || o.path);
@@ -102,13 +104,12 @@ Manifold.prototype.set = function(path, o){
     node = node.children[stem.path];
     util.defineProperty(node, 'parent', 'w', this.store);
     util.defineProperty(node, 'children', 'w');
-    // so these are not deep copied
   } else if(stem){
     node = node.children[stem.path];
   }
 
   if(!o){ return this; }
-  Object.keys(o).forEach(function(key){
+  Object.keys(o).forEach(function parseOptions(key){
     var value = o[key];
     if(value === null){ delete node[key]; }
     else if(this.parses[key]){
@@ -116,7 +117,9 @@ Manifold.prototype.set = function(path, o){
     } else if(util.type(value).plainObject){
       if(!node[key]){ node[key] = {}; }
       util.merge(node[key], util.clone(value, true));
-    } else { node[key] = util.clone(value, true); }
+    } else {
+      node[key] = util.clone(value, true);
+    }
   }, this);
 
   return this;
@@ -146,8 +149,8 @@ Manifold.prototype.get = function(path, opt, mod){
   var o = util.type(opt || path).object || {};
   mod = mod || o;
 
-  var stem = this.match(path, o);
   var node = this.store;
+  var stem = this.match(path, o);
 
   if(stem){ node = node.children[stem.path]; }
   if(mod && mod.ref){ return node; }
@@ -158,10 +161,10 @@ Manifold.prototype.get = function(path, opt, mod){
       o[key] = util.clone(node[key], true);
     });
 
-    if(node !== node.parent){
+    if(node.parent && node !== node.parent){
       node = node.parent;
+      whilst();
     }
-    if(node){ whilst(); }
   }
 
   whilst();
