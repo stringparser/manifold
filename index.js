@@ -41,9 +41,7 @@ Manifold.prototype.parse = function(prop, parser){
     return Object.keys(prop).forEach(function(key){
       return this.parse(key, prop[key]);
     }, this);
-  }
-
-  if(!parser && this.parses){
+  } else if(!parser && this.parses){
     return prop ? this.parses[prop] : util.parse;
   } else if(!propType.string){
     throw new TypeError('parse(prop[, parser])\n'+
@@ -92,13 +90,17 @@ Manifold.prototype.set = function(path, opt){
 
   var oType = util.type(opt || path);
   var o = oType.plainObject || '';
+
+  if(util.type(o.path || path).string){
+    if(!o){ o = {}; } o.path = o.path || path;
+  }
+
   if(oType.function || util.type(o.handle).function){
-    o = o || {};
-    o.handle = oType.function || o.handle;
+    if(!o){ o = {}; } o.handle = oType.function || o.handle;
   }
 
   var node = this.store;
-  var stem = util.boil(path || o.path);
+  var stem = util.boil(o.path);
   if(stem && !node.children[stem.path]){
     this.add(stem.path);
     node = node.children[stem.path];
@@ -108,11 +110,11 @@ Manifold.prototype.set = function(path, opt){
     node = node.children[stem.path];
   }
 
+  var value;
   if(!o){ return this; }
   Object.keys(o).forEach(function parseOptions(key){
-    var value = o[key];
-    if(value === null){ delete node[key]; }
-    else if(this.parses[key]){
+    value = o[key];
+    if(this.parses[key]){
       return this.parses[key](node, value, o);
     } else if(util.type(value).plainObject){
       if(!node[key]){ node[key] = {}; }
