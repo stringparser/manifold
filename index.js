@@ -12,52 +12,12 @@ function Manifold(){
     return new Manifold();
   }
 
-  this.parses = {};
-  util.Parth.call(this);
+  util.merge(this, new util.Parth());
+  util.defineProperty(this, 'parses', '', {});
+  util.defineProperty(this.store, 'children', 'e', {});
+
   this.parse(util.defaultParsers.prop);
-  util.defineProperty(this.store, 'children', '', {});
 }
-util.inherits(Manifold, util.Parth);
-
-/* ### manifold.parse(prop[, parser])
-> parse `node` properties _before_ they are set
-
-The method sets a parser for latter usage in
-[`manifold.set([path, props]`](#manifoldsetpath-props).
-The parser function will be invoked when  `props`
-of that #set method has a property named `prop`.
-
-_arguments_
- - `prop`, type string or object with one function per key
- - `parser`, optional, type `function`
-
-_returns_
- - `parser` for less than two arguments
- - `this` for two arguments
-*/
-Manifold.prototype.parse = function(prop, parser){
-  var propType = util.type(prop);
-  if(propType.plainObject && !parser){
-    return Object.keys(prop).forEach(function(key){
-      return this.parse(key, prop[key]);
-    }, this);
-  } else if(!parser && this.parses){
-    return prop ? this.parses[prop] : util.parse;
-  } else if(!propType.string){
-    throw new TypeError('parse(prop[, parser])\n'+
-      ' `prop` should be a string');
-  } else if(typeof parser !== 'function'){
-    throw new TypeError('parse(prop, parser):\n'+
-      ' `parser`, if given, should be a function');
-  }
-
-  var self = this;
-  this.parses[prop] = function propParser(/* arguments */){
-    return parser.apply(self, arguments);
-  };
-
-  return this;
-};
 
 /* ## manifold.set([path, props])
 > set a path to regex mapping for an object
@@ -90,19 +50,14 @@ Manifold.prototype.set = function(path, opt){
 
   var oType = util.type(opt || path);
   var o = oType.plainObject || '';
-
-  if(util.type(o.path || path).string){
-    if(!o){ o = {}; } o.path = o.path || path;
-  }
-
   if(oType.function || util.type(o.handle).function){
     if(!o){ o = {}; } o.handle = oType.function || o.handle;
   }
 
   var node = this.store;
-  var stem = util.boil(o.path);
+  var stem = util.boil(o.path || path);
   if(stem && !node.children[stem.path]){
-    this.add(stem.path);
+    util.ParthProto(this, 'set')(stem.path);
     node = node.children[stem.path];
     util.defineProperty(node, 'parent', 'w', this.store);
     util.defineProperty(node, 'children', 'w');
@@ -110,19 +65,68 @@ Manifold.prototype.set = function(path, opt){
     node = node.children[stem.path];
   }
 
-  var value;
   if(!o){ return this; }
-  Object.keys(o).forEach(function parseOptions(key){
-    value = o[key];
-    if(this.parses[key]){
-      return this.parses[key](node, value, o);
-    } else if(util.type(value).plainObject){
-      if(!node[key]){ node[key] = {}; }
-      util.merge(node[key], util.clone(value, true));
-    } else {
-      node[key] = util.clone(value, true);
+  return this.parse(node, o);
+};
+
+/* ### manifold.parse(prop[, parser])
+> parse `node` properties _before_ they are set
+
+The method sets a parser for latter usage in
+[`manifold.set([path, props]`](#manifoldsetpath-props).
+The parser function will be invoked when  `props`
+of that #set method has a property named `prop`.
+
+_arguments_
+ - `prop`, type string or object with one function per key
+ - `parser`, optional, type `function`
+
+_returns_
+ - `parser` for less than two arguments
+ - `this` for two arguments
+*/
+Manifold.prototype.parse = function(prop, parser){
+
+  if(parser && util.type(parser).plainObject){
+    var node = prop, props = parser;
+    Object.keys(parser).forEach(function parseOptions(key){
+      var value = props[key];
+      if(this.parses[key]){
+        return this.parses[key](node, value, props);
+      } else if(util.type(value).plainObject){
+        if(!node[key]){ node[key] = {}; }
+        util.merge(node[key], util.clone(value, true));
+      } else {
+        node[key] = util.clone(value, true);
+      }
+    }, this);
+    return this;
+  }
+
+  if(!parser){
+    if(util.type(prop).plainObject){
+      Object.keys(prop).forEach(function(key){
+        return this.parse(key, prop[key]);
+      }, this);
+      return this;
     }
-  }, this);
+    return prop ? this.parses[prop] : util.parse;
+  }
+
+  if(typeof prop !== 'string'){
+    throw new TypeError('parse(prop[, parser])\n'+
+      ' `prop` should be a string');
+  }
+
+  if(typeof parser !== 'function'){
+    throw new TypeError('parse(prop, parser):\n'+
+      ' `parser`, if given, should be a function');
+  }
+
+  var self = this;
+  this.parses[prop] = function propParser(/* arguments */){
+    return parser.apply(self, arguments);
+  };
 
   return this;
 };
@@ -152,7 +156,7 @@ Manifold.prototype.get = function(path, opt, mod){
   mod = mod || o;
 
   var node = this.store;
-  var stem = this.match(path, o);
+  var stem = util.ParthProto(this, 'get')(path, o);
 
   if(stem){ node = node.children[stem.path]; }
   if(mod && mod.ref){ return node; }
