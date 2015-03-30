@@ -50,12 +50,17 @@ Manifold.prototype.set = function(path, opt){
 
   var oType = util.type(opt || path);
   var o = oType.plainObject || '';
+
+  if(util.type(path || o.path).string){
+    if(!o){ o = {}; } o.path = path || o.path;
+  }
+
   if(oType.function || util.type(o.handle).function){
     if(!o){ o = {}; } o.handle = oType.function || o.handle;
   }
 
   var node = this.store;
-  var stem = util.boil(o.path || path);
+  var stem = util.boil(o.path);
   if(stem && !node.children[stem.path]){
     util.ParthProto(this, 'set')(stem.path);
     node = node.children[stem.path];
@@ -65,7 +70,6 @@ Manifold.prototype.set = function(path, opt){
     node = node.children[stem.path];
   }
 
-  if(!o){ return this; }
   return this.parse(node, o);
 };
 
@@ -86,8 +90,15 @@ _returns_
  - `this` for two arguments
 */
 Manifold.prototype.parse = function(prop, parser){
-
-  if(parser && util.type(parser).plainObject){
+  if(!parser){
+    if(util.type(prop).plainObject){
+      Object.keys(prop).forEach(function(key){
+        return this.parse(key, prop[key]);
+      }, this);
+      return this;
+    }
+    return prop ? this.parses[prop] : util.parse;
+  } else if(util.type(parser).plainObject){
     var node = prop, props = parser;
     Object.keys(parser).forEach(function parseOptions(key){
       var value = props[key];
@@ -101,16 +112,6 @@ Manifold.prototype.parse = function(prop, parser){
       }
     }, this);
     return this;
-  }
-
-  if(!parser){
-    if(util.type(prop).plainObject){
-      Object.keys(prop).forEach(function(key){
-        return this.parse(key, prop[key]);
-      }, this);
-      return this;
-    }
-    return prop ? this.parses[prop] : util.parse;
   }
 
   if(typeof prop !== 'string'){
