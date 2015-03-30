@@ -25,9 +25,9 @@
   "dependencies": {
     "inherits": "^2.0.1",
     "lodash.clone": "^2.4.1",
+    "lodash.merge": "^3.1.x",
     "parth": "^2.x.x",
-    "utils-merge": "^1.0.0",
-    "utils-type": "^0.x.x"
+    "utils-type": "^0.12.x"
   },
   "devDependencies": {
     "jshint-stylish": "*",
