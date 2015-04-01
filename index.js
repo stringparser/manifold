@@ -89,45 +89,40 @@ _returns_
  - `parser` for less than two arguments
  - `this` for two arguments
 */
-Manifold.prototype.parse = function(prop, parser){
-  if(!parser){
-    if(util.type(prop).plainObject){
-      Object.keys(prop).forEach(function(key){
-        return this.parse(key, prop[key]);
-      }, this);
-      return this;
-    }
-    return prop ? this.parses[prop] : util.parse;
-  } else if(util.type(parser).plainObject){
-    var node = prop, props = parser;
-    Object.keys(parser).forEach(function parseOptions(key){
-      var value = props[key];
-      if(this.parses[key]){
-        return this.parses[key](node, value, props);
-      } else if(util.type(value).plainObject){
-        if(!node[key]){ node[key] = {}; }
-        util.merge(node[key], util.clone(value, true));
-      } else {
-        node[key] = util.clone(value, true);
-      }
+Manifold.prototype.parse = function(node, props){
+
+  if(typeof props === 'function'){
+    var self = this, parser = props;
+    this.parses[node] = function parseProp(/* arguments */){
+      return parser.apply(self, arguments);
+    };
+    return this;
+  } else if(!props && util.type(node).object){
+    Object.keys(node).forEach(function(key){
+      this.parse(key, node[key]);
     }, this);
     return this;
+  } else if(!props){
+    throw new TypeError(
+      'parse(object node[, object props]) node is not an object'
+    );
+  } else if(!util.type(props).object){
+    throw new TypeError(
+      'parse(object node, object props) props is not an object'
+    );
   }
 
-  if(typeof prop !== 'string'){
-    throw new TypeError('parse(prop[, parser])\n'+
-      ' `prop` should be a string');
-  }
-
-  if(typeof parser !== 'function'){
-    throw new TypeError('parse(prop, parser):\n'+
-      ' `parser`, if given, should be a function');
-  }
-
-  var self = this;
-  this.parses[prop] = function propParser(/* arguments */){
-    return parser.apply(self, arguments);
-  };
+  Object.keys(props).forEach(function parseOptions(key){
+    var value = props[key];
+    if(this.parses[key]){
+      return this.parses[key](node, value, props);
+    } else if(util.type(value).plainObject){
+      if(!node[key]){ node[key] = {}; }
+      util.merge(node[key], util.clone(value, true));
+    } else {
+      node[key] = util.clone(value, true);
+    }
+  }, this);
 
   return this;
 };
