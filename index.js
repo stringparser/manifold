@@ -12,12 +12,13 @@ function Manifold(){
     return new Manifold();
   }
 
-  util.merge(this, new util.Parth());
+  util.Parth.call(this);
   util.defineProperty(this, 'parses', '', {});
   util.defineProperty(this.store, 'children', 'e', {});
 
   this.parse(util.defaultParsers.prop);
 }
+util.inherits(Manifold, util.Parth);
 
 /* ## manifold.set([path, props])
 > set a path to regex mapping for an object
