@@ -1,18 +1,14 @@
-Map strings to objects via regular expressions.
-
-<p align="center">
-  <a href="http://en.wikipedia.org/wiki/Lie_group">
-    <img alt="manifold" height=300 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/400px-E8Petrie.svg.png"/>
-  </a>
-</p>
-
 ## manifold [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
-
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
 [todo](#todo) -
 [not a real horse](#why)
+
+-- map strings to objects via regular expressions --
+<a href="http://en.wikipedia.org/wiki/Lie_group">
+  <img alt="manifold" height=325 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/400px-E8Petrie.svg.png"/>
+</a>
 
 ## sample
 
