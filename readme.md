@@ -1,10 +1,12 @@
+Map strings to objects via regular expressions.
+
 <p align="center">
   <a href="http://en.wikipedia.org/wiki/Lie_group">
     <img alt="manifold" height=300 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/400px-E8Petrie.svg.png"/>
   </a>
 </p>
 
-## Manifold [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
+## manifold [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
 
 [documentation](#documentation) -
 [examples](#examples) -
@@ -15,7 +17,7 @@
 ## sample
 
 ```js
-var Manifold = require('mainfold');
+var Manifold = require('manifold');
 var app = new Manifold();
 
 app.set('get /user/:page(\\d+)', {
