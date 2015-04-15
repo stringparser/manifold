@@ -2,7 +2,7 @@
   "name": "manifold",
   "main": "index.js",
   "author": "Javier Carrillo",
-  "version": "3.1.5",
+  "version": "3.1.7",
   "license": "MIT",
   "homepage": "https://github.com/stringparser/manifold",
   "repository": "stringparser/manifold",
