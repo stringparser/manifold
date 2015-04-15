@@ -63,7 +63,7 @@ Manifold.prototype.set = function(path, opt){
   var node = this.store;
   var stem = util.boil(o.path);
   if(stem && !node.children[stem.path]){
-    util.ParthProto(this, 'set')(stem.path);
+    util.super(this, 'set')(stem.path);
     node = node.children[stem.path];
     util.defineProperty(node, 'parent', 'w', this.store);
     util.defineProperty(node, 'children', 'w');
@@ -153,7 +153,7 @@ Manifold.prototype.get = function(path, opt, mod){
   mod = mod || o;
 
   var node = this.store;
-  var stem = util.ParthProto(this, 'get')(path, o);
+  var stem = util.super(this, 'get')(path, o);
 
   if(stem){ node = node.children[stem.path]; }
   if(mod && mod.ref){ return node; }
