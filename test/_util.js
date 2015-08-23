@@ -28,10 +28,8 @@ module.exports = {
     // first tests
     var first = [
       'sample.js',
-      'parse.js',
       'rootNode.js',
-      'parent.js',
-      'children.js'
+      'parent.js'
     ];
     // files to exclude
     var exclude = [

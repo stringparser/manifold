@@ -15,11 +15,6 @@ module.exports = function(Manifold, util){
       .should.have.property('handle', rootHandle);
   });
 
-  it('should have properties ({ref: true})', function(){
-    app.get({ref: true})
-      .should.have.property('children');
-  });
-
   it('should not have properties ({ref: true})', function(){
     app.get({ref: true})
       .should.not.have.property(['path', 'parent']);
