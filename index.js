@@ -100,7 +100,7 @@ Manifold.prototype.get = function(path, opt){
 
   (function whilst(){
     Object.keys(node).forEach(function(key){
-      if(skipRE.test(key) || o[key] !== void 0){ return ; }
+      if(skipRE.test(key)){ return ; }
       o[key] = util.clone(node[key], true);
     });
 
