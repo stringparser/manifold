@@ -56,51 +56,6 @@ var manifold = new Manifold();
 ```
 In all the following `node` refers to the `object` mapping path to object.
 
-### manifold.parse(prop[, parser])
-> parse `node` properties _before_ they are set
-
-The method sets a parser for latter usage in [`manifold.set([path, options]`](#manifoldsetpath-options). The parser function will be invoked when  `options` of that #set method has a property named `prop`.
-
-_arguments_
- - `prop`, type string or object with one function per key
- - `parser`, optional, type `function`
-
-_returns_
- - `parser` for less than two arguments
- - `this` for two arguments
-
-_sample_
-```js
-manifold.parse({
-  number: function(node, value, key, opt){
-    node.number = value + 2;
-  },
-  string: function(node, value, key, opt){
-    node.string = value.trim();
-  }
-});
-
-manifold
-   .set({number: 0, string: '  hello'})
-   .get(); // =>
-
-{ notFound: true, number: 2, string: 'hello' }
-
-```
-
-### `parser` arguments
-
-Arguments, passed from [manifold.set](#manifoldsetpath-props) to the parser are:
- - `node`, type object, the current `node` being set
- - `value`, type unkown, `options[prop]` of
- - `key`, type string, property `name` being parsed (equal to `prop` at the moment)
- - `opt`, the `options` object of `manifold.set`
-
-
-#### built-in: `parent` and `children` property parsers
-
-There are [default property parsers defined](./lib/defaultParsers.js). One for `options.parent` and another one for `options.children`. Both work together to help and define inheritance when using [`manifold.get`](#manifoldgetpath-options-mod) _only_ if so specified.
-
 ## manifold.set([path, props])
 > set a path to regex mapping for an object
 
@@ -132,17 +87,6 @@ manifold.get('get /user/10');
   handle: [Function: getUserPage]
 }
 
-```
-
-_a use case for a parser_
-```js
-var myLib = require('myLib');
-manifold.parse('handle', function(node, value, key, opt){
-  var handle = value;
-  node.handle = function (/* arguments*/){
-    return handle.apply(myLib, arguments);
-  }
-});
 ```
 
 ## manifold.get([path, options, mod])
@@ -190,9 +134,8 @@ manifold.get('get /user/10'); // =>
 
 ## instance properties
 
-- `manifold.parses`: property parsers are stored here
-- `manifold.store`: key value store with all of the nodes stored
 - `manifold.regex`: regexes are stored here
+- `manifold.store`: key value store with all of the nodes stored
 
 ## why
 
