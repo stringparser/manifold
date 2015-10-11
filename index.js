@@ -39,8 +39,8 @@ So you know... interesting things can happen.
 
 Manifold.prototype.set = function(path, opt){
   opt = opt || path;
-  var o = util.type(opt || path).plainObject || {};
 
+  var o = util.type(opt).plainObject || {};
   o.path = util.type(o.path || path).string;
   o.handle = util.type(o.handle || opt).function;
   o.parent = util.type(o.parent).string;
