@@ -36,7 +36,7 @@
     "mocha": "*"
   },
   "scripts": {
-    "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js --exclude node_modules",
+    "lint": "jshint index.js --exclude node_modules",
     "test": "npm run-script lint && mocha --reporter spec test/_main.js"
   }
 }

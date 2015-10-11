@@ -1,4 +1,7 @@
-## manifold [![build][badge-build]][x-travis][![NPM version][badge-version]][x-npm]
+## manifold [![NPM version][badge-version]][x-npm]
+
+[![build][badge-build]][x-travis]
+
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
