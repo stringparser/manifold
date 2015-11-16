@@ -1,12 +1,12 @@
 ## manifold [![NPM version][badge-version]][x-npm]
 
-[![build][badge-build]][x-travis]
-
 [documentation](#documentation) -
 [examples](#examples) -
 [install](#install) -
 [todo](#todo) -
 [not a real horse](#why)
+
+[![build][badge-build]][x-travis]
 
 <a href="http://en.wikipedia.org/wiki/Lie_group">
   <img alt="manifold" height=325 src="http://upload.wikimedia.org/wikipedia/commons/thumb/1/14/E8Petrie.svg/400px-E8Petrie.svg.png"/>
@@ -67,7 +67,7 @@ _arguments_
 
 - `props` type function or plainObject
  - when is a function it will be assigned to the `props.handle`
- - when is a plainObject, all option properties are passed first to a `parser` if there is one and if not, that property is cloned and assigned to the node props
+ - when is a plainObject its properties is cloned and assigned to the node props
 
 _returns_ this
 
