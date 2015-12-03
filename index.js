@@ -46,8 +46,8 @@ Manifold.prototype.set = function(path, opt){
   o.parent = util.type(o.parent).string;
 
   var node = this.root;
-  if(o.path && !node[o.path]){
-    util.super(this, 'set')(o.path);
+  if(o.path && node[o.path] == null){
+    Parth.prototype.set.call(this, o.path);
     node = this.store[o.path];
   } else if(this.store[o.path]){
     node = this.store[o.path];
@@ -58,15 +58,18 @@ Manifold.prototype.set = function(path, opt){
     o.parent = null;
   }
 
-  Object.keys(o).forEach(function(key){
-    var value = o[key]; if(!value){ return; }
+  for(var key in o){
+    var value = o[key];
+    if(value == null){ continue; }
+    if(!o.hasOwnProperty(key)){ continue; }
+
     if(util.type(value).plainObject){
       if(!node[key]){ node[key] = {}; }
       util.merge(node[key], util.clone(value, true));
     } else {
       node[key] = util.clone(o[key], true);
     }
-  }, this);
+  }
 
   return this;
 };
@@ -89,20 +92,22 @@ _when_
 _returns_ the object (cloned/by reference) `node` found
 */
 
-var skipRE = /children|parent/;
+var skip = /^(?:parent|children)$/;
 
 Manifold.prototype.get = function(path, opt){
   var o = util.type(opt || path).plainObject || {};
-  var stem = util.super(this, 'get')(path, o);
+  var stem = Parth.prototype.get.call(this, path, o);
   var node = stem ? this.store[stem.path] : this.root;
 
   if(o.ref){ return node; }
 
   (function whilst(){
-    Object.keys(node).forEach(function(key){
-      if(skipRE.test(key)){ return; }
-      o[key] = util.clone(node[key], true);
-    });
+    for(var key in node){
+      if(node.hasOwnProperty(key)){
+        if(skip.test(key)){ continue; }
+        o[key] = util.clone(node[key], true);
+      }
+    }
 
     if(node.parent && node !== node.parent){
       node = node.parent;
